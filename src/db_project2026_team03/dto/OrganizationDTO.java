@@ -1,4 +1,4 @@
-package db_project2026_team03;
+package db_project2026_team03.dto;
 
 public class OrganizationDTO {
     private int orgId; //org_id (INT)

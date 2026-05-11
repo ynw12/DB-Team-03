@@ -45,7 +45,7 @@ CREATE TABLE Recruitment (
     start_date         DATETIME,
     end_date           DATETIME,
     interview_required BOOLEAN,
-    recru_status       VARCHAR(20) CHECK (recru_status IN ('모집대기', '모집중', '모집마감')), -- 3가지 상태 추가
+    recruit_status     VARCHAR(20) CHECK (recruit_status IN ('모집대기', '모집중', '모집마감')), -- 3가지 상태 추가
     FOREIGN KEY (org_id) REFERENCES Organization(org_id)
 );
 
@@ -54,7 +54,7 @@ CREATE TABLE Application (
     recruitment_id  INT,
     student_id      VARCHAR(20),
     self_intro      TEXT,
-    status          VARCHAR(20) CHECK (status IN ('대기', '합격', '불합격')), -- 3가지 상태 추가
+    pass_status     VARCHAR(20) CHECK (pass_status IN ('대기', '합격', '불합격')), -- 3가지 상태 추가
     FOREIGN KEY (recruitment_id) REFERENCES Recruitment(recruitment_id),
     FOREIGN KEY (student_id)     REFERENCES Student(student_id)
 );

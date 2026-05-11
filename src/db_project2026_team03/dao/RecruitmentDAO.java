@@ -13,7 +13,7 @@ import db_project2026_team03.dto.RecruitmentDTO;
 public class RecruitmentDAO {
 
     public boolean insertRecruitment(RecruitmentDTO recruitment) {
-        String sql = "INSERT INTO Recruitment (recruitment_id, org_id, title, qualification, start_date, end_date, interview_required) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Recruitment (recruitment_id, org_id, title, qualification, start_date, end_date, interview_required,recruStatus) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         boolean isSuccess = false;
 
         try (Connection conn = DBConnection.getConnection();
@@ -26,6 +26,7 @@ public class RecruitmentDAO {
             pstmt.setTimestamp(5, recruitment.getStartDate());
             pstmt.setTimestamp(6, recruitment.getEndDate());
             pstmt.setBoolean(7, recruitment.isInterviewRequired());
+            pstmt.setString(7, recruitment.isRecruStatus());
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) isSuccess = true;
@@ -53,6 +54,7 @@ public class RecruitmentDAO {
                 dto.setStartDate(rs.getTimestamp("start_date"));
                 dto.setEndDate(rs.getTimestamp("end_date"));
                 dto.setInterviewRequired(rs.getBoolean("interview_required"));
+                dto.setRecruStatus(rs.getString("recruStatus"));
                 list.add(dto);
             }
 

@@ -17,12 +17,12 @@ SELECT
     r.start_date,
     r.end_date,
     r.interview_required,
-    r.recru_status
+    r.recruit_status
 FROM Recruitment r
     JOIN Organization o ON r.org_id = o.org_id           -- 모집공고 → 동아리
     JOIN OrganizationType ot ON o.org_type_id = ot.org_type_id  -- 동아리 → 단체유형
     JOIN Category c ON o.category_id = c.category_id     -- 동아리 → 카테고리
-WHERE r.recru_status = '모집중'
+WHERE r.recruit_status = '모집중'
   AND r.end_date >= CURDATE();
 
 
@@ -48,11 +48,11 @@ FROM Bookmark b
 
 -- Recruitment: 모집 상태 + 마감일 조회
 CREATE INDEX idx_recruitment_status_enddate
-    ON Recruitment(recru_status, end_date);
+    ON Recruitment(recruit_status, end_date);
 
 -- Recruitment: 모집 상태 + 면접 여부 조회
 CREATE INDEX idx_recruitment_status_interview
-    ON Recruitment(recru_status, interview_required);
+    ON Recruitment(recruit_status, interview_required);
 
 -- Organization: 단체 유형 + 카테고리 조회
 CREATE INDEX idx_organization_type_category

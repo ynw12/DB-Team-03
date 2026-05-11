@@ -13,11 +13,11 @@ import db_project2026_team03.dto.RecruitmentDTO;
 public class RecruitmentDAO {
 
     public boolean insertRecruitment(RecruitmentDTO recruitment) {
-        String sql = "INSERT INTO Recruitment (recruitment_id, org_id, title, qualification, start_date, end_date, interview_required,recruStatus) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Recruitment (recruitment_id, org_id, title, qualification, start_date, end_date, interview_required,recruitStatus) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         boolean isSuccess = false;
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, recruitment.getRecruitmentId());
             pstmt.setInt(2, recruitment.getOrgId());
@@ -26,10 +26,11 @@ public class RecruitmentDAO {
             pstmt.setTimestamp(5, recruitment.getStartDate());
             pstmt.setTimestamp(6, recruitment.getEndDate());
             pstmt.setBoolean(7, recruitment.isInterviewRequired());
-            pstmt.setString(7, recruitment.isRecruStatus());
+            pstmt.setString(8, recruitment.getRecruitStatus());
 
             int rowsAffected = pstmt.executeUpdate();
-            if (rowsAffected > 0) isSuccess = true;
+            if (rowsAffected > 0)
+                isSuccess = true;
 
         } catch (SQLException e) {
             System.out.println("xx Recruitment 등록 실패: " + e.getMessage());
@@ -37,13 +38,20 @@ public class RecruitmentDAO {
         return isSuccess;
     }
 
-    public List<RecruitmentDTO> selectAllRecruitments() {
-        String sql = "SELECT * FROM Recruitment";
+    public List<RecruitmentDTO> getAllRecruitments() {
+        String sql = "SELECT recruitment_id, org_id, title, qualification, start_date, end_date, interview_required, " +
+                "CASE " +
+                "    WHEN NOW() < start_date THEN '모집대기' " +
+                "    WHEN NOW() BETWEEN start_date AND end_date THEN '모집중' " +
+                "    ELSE '모집마감' " +
+                "END AS recruitStatus " +
+                "FROM Recruitment";
+
         List<RecruitmentDTO> list = new ArrayList<>();
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
                 RecruitmentDTO dto = new RecruitmentDTO();
@@ -54,7 +62,7 @@ public class RecruitmentDAO {
                 dto.setStartDate(rs.getTimestamp("start_date"));
                 dto.setEndDate(rs.getTimestamp("end_date"));
                 dto.setInterviewRequired(rs.getBoolean("interview_required"));
-                dto.setRecruStatus(rs.getString("recruStatus"));
+                dto.setRecruitStatus(rs.getString("recruitStatus"));
                 list.add(dto);
             }
 
@@ -62,5 +70,124 @@ public class RecruitmentDAO {
             System.out.println("x Recruitment 조회 실패: " + e.getMessage());
         }
         return list;
+    }
+
+    // 모집 공고 전체 조회
+    public void printAllRecruitments() {
+        String sql = "SELECT r.recruitment_id, o.org_name, r.title, r.end_date " +
+                "FROM Recruitment r " +
+                "JOIN Organization o ON r.org_id = o.org_id " +
+                "WHERE NOW() BETWEEN r.start_date AND r.end_date " +
+                "ORDER BY r.end_date ASC";
+
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
+
+            System.out.println("\n=====  전체 모집 공고 목록 =====");
+            System.out.println("번호 | 동아리명 | 공고 제목 | 마감일");
+            System.out.println("------------------------------------");
+
+            boolean hasData = false;
+            while (rs.next()) {
+                hasData = true;
+                int id = rs.getInt("recruitment_id");
+                String orgName = rs.getString("org_name");
+                String title = rs.getString("title");
+                java.sql.Date endDate = rs.getDate("end_date");
+
+                System.out.printf("%d | %s | %s | %s\n", id, orgName, title, endDate.toString());
+            }
+
+            if (!hasData) {
+                System.out.println("현재 진행 중인 모집 공고가 없습니다.");
+            }
+            System.out.println("====================================\n");
+
+        } catch (SQLException e) {
+            System.out.println("xx 공고 목록 조회 실패: " + e.getMessage());
+        }
+    }
+
+    // 모집 공고 키워드 검색
+    public void searchRecruitmentsByKeyword(String keyword) {
+        String sql = "SELECT r.recruitment_id, o.org_name, r.title, r.end_date " +
+                "FROM Recruitment r " +
+                "JOIN Organization o ON r.org_id = o.org_id " +
+                "WHERE r.title LIKE ? AND NOW() BETWEEN r.start_date AND r.end_date " +
+                "ORDER BY r.end_date ASC";
+
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, "%" + keyword + "%");
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                System.out.println("\n===== '" + keyword + "' 검색 결과 =====");
+                System.out.println("번호 | 동아리명 | 공고 제목 | 마감일");
+                System.out.println("------------------------------------");
+
+                boolean hasResult = false;
+                while (rs.next()) {
+                    hasResult = true;
+                    int id = rs.getInt("recruitment_id");
+                    String orgName = rs.getString("org_name");
+                    String title = rs.getString("title");
+                    java.sql.Date endDate = rs.getDate("end_date");
+
+                    System.out.printf("%d | %s | %s | %s\n", id, orgName, title, endDate.toString());
+                }
+
+                if (!hasResult) {
+                    System.out.println("검색 결과가 없습니다.");
+                }
+                System.out.println("====================================\n");
+            }
+        } catch (SQLException e) {
+            System.out.println("xx 공고 검색 실패: " + e.getMessage());
+        }
+    }
+
+    // 특정 모집 공고 상세 조회
+    public void printRecruitmentDetail(int recruitmentId) {
+        String sql = "SELECT r.*, o.org_name, DATEDIFF(r.end_date, NOW()) as d_day " +
+                "FROM Recruitment r " +
+                "JOIN Organization o ON r.org_id = o.org_id " +
+                "WHERE r.recruitment_id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, recruitmentId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    String orgName = rs.getString("org_name");
+                    String title = rs.getString("title");
+                    String qualification = rs.getString("qualification");
+                    boolean interview = rs.getBoolean("interview_required");
+                    java.sql.Date start = rs.getDate("start_date");
+                    java.sql.Date end = rs.getDate("end_date");
+                    int dDay = rs.getInt("d_day");
+                    String dDayText = (dDay == 0) ? "D-Day (오늘 마감)" : "D-" + dDay;
+
+                    System.out.println("\n============================================");
+                    System.out.println("  [" + dDayText + "] " + rs.getString("title"));
+                    System.out.println("============================================");
+                    System.out.println("▶ 동아리명 : " + orgName);
+                    System.out.println("▶ 공고제목 : " + title);
+                    System.out.println("▶ 모집기간 : " + start + " ~ " + end);
+                    System.out.println("▶ 면접여부 : " + (interview ? "있음 (면접 후 최종 선발)" : "없음 (서류 전형만 진행)"));
+                    System.out.println("--------------------------------------------");
+                    System.out.println("▶ 지원 자격 및 세부 요건 :");
+                    System.out.println(qualification);
+                    System.out.println("============================================\n");
+                } else {
+                    System.out.println("해당 번호의 공고를 찾을 수 없습니다.");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("xx 상세 조회 실패: " + e.getMessage());
+        }
     }
 }

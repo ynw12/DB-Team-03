@@ -7,19 +7,19 @@ public class OrganizationDTO {
     private int categoryId;//category_id (INT)
     private String description;//description (TEXT)
     private String presidentId; //president_id (VARCHAR)
-    private boolean status;//status(BOOLEAN)
+    private boolean orgStatus;//orgStatus(BOOLEAN)
 
     public OrganizationDTO() {}
 
     public OrganizationDTO(int orgId, String orgName, int orgTypeId, int categoryId, 
-                           String description, String presidentId, boolean status) {
+                           String description, String presidentId, boolean orgStatus) {
         this.orgId = orgId;
         this.orgName = orgName;
         this.orgTypeId = orgTypeId;
         this.categoryId = categoryId;
         this.description = description;
         this.presidentId = presidentId;
-        this.status = status;
+        this.orgStatus = orgStatus;
     }
     
     public int getOrgId() { return orgId; }
@@ -34,6 +34,6 @@ public class OrganizationDTO {
     public void setDescription(String description) { this.description = description; }
     public String getPresidentId() { return presidentId; }
     public void setPresidentId(String presidentId) { this.presidentId = presidentId; }
-    public boolean isStatus() { return status; }
-    public void setStatus(boolean status) { this.status = status; }
+    public boolean isOrgStatus() { return orgStatus; }
+    public void setOrgStatus(boolean orgStatus) { this.orgStatus = orgStatus; }
 }

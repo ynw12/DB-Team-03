@@ -13,7 +13,7 @@ import db_project2026_team03.dto.ApplicationDTO;
 public class ApplicationDAO {
 
     public boolean insertApplication(ApplicationDTO app) {
-        String sql = "INSERT INTO Application (application_id, recruitment_id, student_id, self_intro, passStatus) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Application (application_id, recruitment_id, student_id, self_intro, pass_status) VALUES (?, ?, ?, ?, ?)";
         boolean isSuccess = false;
 
         try (Connection conn = DBConnection.getConnection();
@@ -48,7 +48,7 @@ public class ApplicationDAO {
                 dto.setRecruitmentId(rs.getInt("recruitment_id"));
                 dto.setStudentId(rs.getString("student_id"));
                 dto.setSelfIntro(rs.getString("self_intro"));
-                dto.setPassStatus(rs.getString("status"));
+                dto.setPassStatus(rs.getString("pass_status"));
                 list.add(dto);
             }
 

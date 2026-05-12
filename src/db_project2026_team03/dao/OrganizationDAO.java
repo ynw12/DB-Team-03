@@ -13,7 +13,7 @@ import db_project2026_team03.dto.OrganizationDTO;
 public class OrganizationDAO {
 
     public boolean insertOrganization(OrganizationDTO org) {
-        String sql = "INSERT INTO Organization (org_id, org_name, org_type_id, category_id, description, president_id, orgStatus) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Organization (org_id, org_name, org_type_id, category_id, description, president_id, org_status) VALUES (?, ?, ?, ?, ?, ?, ?)";
         boolean isSuccess = false;
 
         try (Connection conn = DBConnection.getConnection();
@@ -52,7 +52,7 @@ public class OrganizationDAO {
                 dto.setCategoryId(rs.getInt("category_id"));
                 dto.setDescription(rs.getString("description"));
                 dto.setPresidentId(rs.getString("president_id"));
-                dto.setOrgStatus(rs.getBoolean("orgStatus"));
+                dto.setOrgStatus(rs.getBoolean("org_status"));
                 list.add(dto);
             }
 

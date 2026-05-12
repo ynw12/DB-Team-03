@@ -13,7 +13,7 @@ import db_project2026_team03.dto.BookmarkDTO;
 public class BookmarkDAO {
 
     public boolean insertBookmark(BookmarkDTO bookmark) {
-        String sql = "INSERT INTO Bookmark (bookmark_id, org_id, student_id) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO Bookmark (bookmark_id, org_id, student_id, created_at) VALUES (?, ?, ?, ?)";
         boolean isSuccess = false;
 
         try (Connection conn = DBConnection.getConnection();
@@ -22,6 +22,7 @@ public class BookmarkDAO {
             pstmt.setInt(1, bookmark.getBookmarkId());
             pstmt.setInt(2, bookmark.getOrgId());
             pstmt.setString(3, bookmark.getStudentId());
+            pstmt.setTimestamp(4, bookmark.getCreatedAt());
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) isSuccess = true;
@@ -45,6 +46,7 @@ public class BookmarkDAO {
                 dto.setBookmarkId(rs.getInt("bookmark_id"));
                 dto.setOrgId(rs.getInt("org_id"));
                 dto.setStudentId(rs.getString("student_id"));
+                dto.setCreatedAt(rs.getTimestamp("created_at"));
                 list.add(dto);
             }
 

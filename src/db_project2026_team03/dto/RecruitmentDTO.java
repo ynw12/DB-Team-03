@@ -41,6 +41,6 @@ public class RecruitmentDTO {
     public boolean isInterviewRequired() {return interviewRequired;}
     public void setInterviewRequired(boolean interviewRequired){this.interviewRequired = interviewRequired;}
 	public String getRecruitStatus() {return recruitStatus;}
-	public void setRecruitStatus(String recruStatus) {this.recruitStatus = recruStatus;}
+	public void setRecruitStatus(String recruitStatus) {this.recruitStatus = recruitStatus;}
     
 }

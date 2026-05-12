@@ -26,7 +26,7 @@ public class RecruitmentDAO {
             pstmt.setTimestamp(5, recruitment.getStartDate());
             pstmt.setTimestamp(6, recruitment.getEndDate());
             pstmt.setBoolean(7, recruitment.isInterviewRequired());
-            pstmt.setString(8, recruitment.isRecruStatus());
+            pstmt.setString(8, recruitment.getRecruStatus());
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) isSuccess = true;

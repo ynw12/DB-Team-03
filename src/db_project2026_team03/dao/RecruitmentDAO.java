@@ -26,7 +26,7 @@ public class RecruitmentDAO {
             pstmt.setTimestamp(5, recruitment.getStartDate());
             pstmt.setTimestamp(6, recruitment.getEndDate());
             pstmt.setBoolean(7, recruitment.isInterviewRequired());
-            pstmt.setString(8, recruitment.getRecruStatus());
+            pstmt.setString(8, recruitment.getRecruitStatus());
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) isSuccess = true;
@@ -54,7 +54,7 @@ public class RecruitmentDAO {
                 dto.setStartDate(rs.getTimestamp("start_date"));
                 dto.setEndDate(rs.getTimestamp("end_date"));
                 dto.setInterviewRequired(rs.getBoolean("interview_required"));
-                dto.setRecruStatus(rs.getString("recruit_status"));
+                dto.setRecruitStatus(rs.getString("recruit_status"));
                 list.add(dto);
             }
 

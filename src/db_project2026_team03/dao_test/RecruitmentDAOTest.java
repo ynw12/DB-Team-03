@@ -31,7 +31,6 @@ public class RecruitmentDAOTest {
 		recruitment.setStartDate(Timestamp.valueOf("2026-05-14 10:00:00"));
 		recruitment.setEndDate(Timestamp.valueOf("2026-05-21 18:00:00"));
 		recruitment.setInterviewRequired(true);
-		recruitment.setRecruitStatus("모집중");
 
 		// INSERT 테스트
 		boolean insertResult = recruitmentDAO.insertRecruitment(recruitment);
@@ -77,7 +76,6 @@ public class RecruitmentDAOTest {
 		updateRecruitment.setStartDate(Timestamp.valueOf("2026-05-15 09:00:00"));
 		updateRecruitment.setEndDate(Timestamp.valueOf("2026-05-25 18:00:00"));
 		updateRecruitment.setInterviewRequired(false);
-		updateRecruitment.setRecruitStatus("모집중");
 
 		boolean updateResult = recruitmentDAO.updateRecruitment(updateRecruitment);
 

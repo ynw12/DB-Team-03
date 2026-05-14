@@ -65,7 +65,7 @@ public class RecruitmentDAO {
 
         String sql = "UPDATE Recruitment "
                    + "SET title=?, qualification=?, start_date=?, end_date=?, "
-                   + "interview_required=?, recruit_status=? "
+                   + "interview_required=? "
                    + "WHERE recruitment_id=?";
 
         boolean isSuccess = false;
@@ -78,8 +78,7 @@ public class RecruitmentDAO {
             pstmt.setTimestamp(3, recruitment.getStartDate());
             pstmt.setTimestamp(4, recruitment.getEndDate());
             pstmt.setBoolean(5, recruitment.isInterviewRequired());
-            pstmt.setString(6, recruitment.getRecruitStatus());
-            pstmt.setInt(7, recruitment.getRecruitmentId());
+            pstmt.setInt(6, recruitment.getRecruitmentId());
 
             int rowsAffected = pstmt.executeUpdate();
 

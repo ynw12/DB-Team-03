@@ -35,7 +35,7 @@ CREATE TABLE Organization (
     category_id  INT, -- 활동 분야를 참조하는 ID (Category 테이블 연결)
     description  TEXT, -- 동아리에 대한 전반적인 소개 글
     president_id VARCHAR(20), -- organizaion 대표의 학번 ID (Student 테이블 연결)
-    org_status BOOLEAN, -- 동아리 활성화 여부 (True: 활성화, False: 폐동아리)
+    org_status BOOLEAN DEFAULT TRUE, -- 동아리 활성화 여부 (True: 활성화, False: 폐동아리)
     FOREIGN KEY (org_type_id)  REFERENCES OrganizationType(org_type_id),
     FOREIGN KEY (category_id)  REFERENCES Category(category_id),
     FOREIGN KEY (president_id) REFERENCES Student(student_id)
@@ -51,7 +51,7 @@ CREATE TABLE Recruitment (
     end_date           DATETIME, -- 모집이 마감되는 날짜와 시간
     interview_required BOOLEAN, -- 면접 진행 여부 (True: 면접 있음, False: 서류만)
     -- 모집 진행 상태 기본 설정은 모집 대기
-    recruit_status VARCHAR(20) DEFAULT '모집대기' 
+    recruit_status VARCHAR(20) DEFAULT '모집대기',
 	-- 모집 진행 상태 (예: 모집전, 모집중, 모집마감)
     CHECK (recruit_status IN ('모집대기', '모집중', '모집마감')),
     -- Recruitment → Organization|org_id CASCADE동아리 없어지면 모집공고도 의미 없음
@@ -65,7 +65,7 @@ CREATE TABLE Application (
     student_id      VARCHAR(20), -- 지원서를 제출한 학생의 학번
     self_intro      TEXT, -- 학생이 작성한 자기소개서 내용
     -- 현재 심사 상태 기본 설정은 대기
-    pass_status VARCHAR(20) DEFAULT '대기'
+    pass_status VARCHAR(20) DEFAULT '대기',
     -- 현재 심사 상태 (대기, 합격, 불합격)
     CHECK (pass_status IN ('대기', '합격', '불합격')), 
     -- Application → Recruitment|recruitment_id CASCADE공고 삭제되면 지원서도 의미 없음

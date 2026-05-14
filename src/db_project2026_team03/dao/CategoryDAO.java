@@ -13,14 +13,13 @@ import db_project2026_team03.dto.CategoryDTO;
 public class CategoryDAO {
 
     public boolean insertCategory(CategoryDTO category) {
-        String sql = "INSERT INTO Category (category_id, category_name) VALUES (?, ?)";
+        String sql = "INSERT INTO Category (category_name) VALUES (?)";
         boolean isSuccess = false;
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, category.getCategoryId());
-            pstmt.setString(2, category.getCategoryName());
+            pstmt.setString(1, category.getCategoryName());
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) isSuccess = true;

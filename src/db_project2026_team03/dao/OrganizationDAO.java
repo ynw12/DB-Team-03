@@ -13,19 +13,17 @@ import db_project2026_team03.dto.OrganizationDTO;
 public class OrganizationDAO {
 
     public boolean insertOrganization(OrganizationDTO org) {
-        String sql = "INSERT INTO Organization (org_id, org_name, org_type_id, category_id, description, president_id, org_status) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Organization (org_name, org_type_id, category_id, description, president_id) VALUES (?, ?, ?, ?, ?)";
         boolean isSuccess = false;
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, org.getOrgId());
-            pstmt.setString(2, org.getOrgName());
-            pstmt.setInt(3, org.getOrgTypeId());
-            pstmt.setInt(4, org.getCategoryId());
-            pstmt.setString(5, org.getDescription());
-            pstmt.setString(6, org.getPresidentId());
-            pstmt.setBoolean(7, org.isOrgStatus());
+            pstmt.setString(1, org.getOrgName());
+            pstmt.setInt(2, org.getOrgTypeId());
+            pstmt.setInt(3, org.getCategoryId());
+            pstmt.setString(4, org.getDescription());
+            pstmt.setString(5, org.getPresidentId());
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) isSuccess = true;

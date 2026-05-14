@@ -60,4 +60,59 @@ public class RecruitmentDAO {
         }
         return list;
     }
+    public boolean updateRecruitment(RecruitmentDTO recruitment) {
+
+        String sql = "UPDATE Recruitment "
+                   + "SET title=?, qualification=?, start_date=?, end_date=?, "
+                   + "interview_required=? "
+                   + "WHERE recruitment_id=?";
+
+        boolean isSuccess = false;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, recruitment.getTitle());
+            pstmt.setString(2, recruitment.getQualification());
+            pstmt.setTimestamp(3, recruitment.getStartDate());
+            pstmt.setTimestamp(4, recruitment.getEndDate());
+            pstmt.setBoolean(5, recruitment.isInterviewRequired());
+            pstmt.setInt(6, recruitment.getRecruitmentId());
+
+            int rowsAffected = pstmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                isSuccess = true;
+            }
+
+        } catch (SQLException e) {
+            System.out.println("xx Recruitment 수정 실패: " + e.getMessage());
+        }
+
+        return isSuccess;
+    }
+    
+    public boolean deleteRecruitment(int recruitmentId) {
+
+        String sql = "DELETE FROM Recruitment WHERE recruitment_id=?";
+
+        boolean isSuccess = false;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, recruitmentId);
+
+            int rowsAffected = pstmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                isSuccess = true;
+            }
+
+        } catch (SQLException e) {
+            System.out.println("xx Recruitment 삭제 실패: " + e.getMessage());
+        }
+
+        return isSuccess;
+    }
 }

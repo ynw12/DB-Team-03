@@ -52,7 +52,6 @@ public class RecruitmentDAO {
                 dto.setStartDate(rs.getTimestamp("start_date"));
                 dto.setEndDate(rs.getTimestamp("end_date"));
                 dto.setInterviewRequired(rs.getBoolean("interview_required"));
-                dto.setRecruitStatus(rs.getString("recruit_status"));
                 list.add(dto);
             }
 

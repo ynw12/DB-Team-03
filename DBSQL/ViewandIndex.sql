@@ -4,8 +4,8 @@ USE db2026team03;
 -- VIEWS
 -- =====================
 
--- 1. 현재 모집 중인 커뮤니티 목록
-CREATE VIEW vw_active_recruitments AS
+-- 1. 전체 커뮤니티 목록 뷰
+CREATE VIEW vw_all_recruitments AS
 SELECT 
     o.org_id, -- 모집 동아리 식별 id
     o.org_name, -- 모집 동아리 명
@@ -27,10 +27,17 @@ FROM Recruitment r
     JOIN Organization o ON r.org_id = o.org_id           -- 모집공고 → 동아리
     JOIN OrganizationType ot ON o.org_type_id = ot.org_type_id  -- 동아리 → 단체유형
     JOIN Category c ON o.category_id = c.category_id     -- 동아리 → 카테고리
-WHERE NOW() BETWEEN r.start_date AND r.end_date;  -- 모집 기간으로 필터링
+WHERE r.start_date <= r.end_date; -- 시작일, 마감일 순서 검증
 
+-- 2. 현재 모집중인 커뮤니티 뷰
+CREATE VIEW vw_active_recruitments AS
+-- 1번 뷰 (상태 포함 전체 커뮤니티 뷰) 에서 조회
+SELECT *
+FROM vw_all_recruitments
+-- 1번 뷰에서 계산한 모집중 상태만 조회
+WHERE recruit_status = '모집중';
 
--- 2. 학생 동아리 즐겨찾기 뷰
+-- 3. 학생 동아리 즐겨찾기 뷰
 CREATE VIEW vw_student_bookmark AS
 SELECT
     s.student_id, -- 즐겨찾기한 학생 학번
@@ -46,7 +53,7 @@ FROM Bookmark b
     JOIN OrganizationType ot ON o.org_type_id = ot.org_type_id  -- 동아리 → 단체유형
     JOIN Category c ON o.category_id = c.category_id;    -- 동아리 → 카테고리
 
--- 3. 학생 모집 공고 스크랩 뷰
+-- 4. 학생 모집 공고 스크랩 뷰
 CREATE VIEW vw_student_scrap AS
 SELECT
     s.student_id,        -- 스크랩한 학생 학번
@@ -74,13 +81,13 @@ FROM Scrap sc
 -- INDEXES
 -- =====================
 
--- Recruitment: 모집 상태 + 마감일 조회
-CREATE INDEX idx_recruitment_status_enddate
-    ON Recruitment(recruit_status, end_date);
+-- Recruitment: 모집 시작일 조회 + 마감일 조회
+CREATE INDEX idx_recruitment_dates 
+	ON Recruitment(start_date, end_date);
 
--- Recruitment: 모집 상태 + 면접 여부 조회
-CREATE INDEX idx_recruitment_status_interview
-    ON Recruitment(recruit_status, interview_required);
+-- Recruitment: 면접 여부 조회 + 모집 시작일 조회 + 마감일 조회
+CREATE INDEX idx_recruitment_interview_enddate
+    ON Recruitment(interview_required, start_date, end_date);
 
 -- Organization: 단체 유형 + 카테고리 조회
 CREATE INDEX idx_organization_type_category

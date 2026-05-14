@@ -50,10 +50,6 @@ CREATE TABLE Recruitment (
     start_date         DATETIME, -- 모집이 시작되는 날짜와 시간
     end_date           DATETIME, -- 모집이 마감되는 날짜와 시간
     interview_required BOOLEAN, -- 면접 진행 여부 (True: 면접 있음, False: 서류만)
-    -- 모집 진행 상태 기본 설정은 모집 대기
-    recruit_status VARCHAR(20) DEFAULT '모집대기',
-	-- 모집 진행 상태 (예: 모집전, 모집중, 모집마감)
-    CHECK (recruit_status IN ('모집대기', '모집중', '모집마감')),
     -- Recruitment → Organization|org_id CASCADE동아리 없어지면 모집공고도 의미 없음
     FOREIGN KEY (org_id) REFERENCES Organization(org_id) ON DELETE CASCADE
 );
@@ -94,7 +90,7 @@ CREATE TABLE Scrap (
     student_id  VARCHAR(20), -- 즐겨찾기를 누른 학생의 학번
     created_at  DATETIME DEFAULT CURRENT_TIMESTAMP, -- 북마크한 시간
     -- 학생, 모집공고 서로 중복 scrap 방지 : 같은 학생이 같은 모집공고 여러번 scrap 금지
-    UNIQUE KEY uq_bookmark (student_id, recruitment_id), 
+    UNIQUE KEY uq_scrap (student_id, recruitment_id), 
     -- Scrap → Recruitment|recruitment_id CASCADE공고 없어지면 스크랩도 의미 없음
     FOREIGN KEY (recruitment_id)     REFERENCES Recruitment(recruitment_id) ON DELETE CASCADE,
     -- Scrap → Student|student_id CASCADE학생 탈퇴하면 스크랩도 같이 삭제

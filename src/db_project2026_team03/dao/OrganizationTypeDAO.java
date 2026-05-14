@@ -13,14 +13,13 @@ import db_project2026_team03.dto.OrganizationTypeDTO;
 public class OrganizationTypeDAO {
 
     public boolean insertOrganizationType(OrganizationTypeDTO type) {
-        String sql = "INSERT INTO OrganizationType (org_type_id, type_name) VALUES (?, ?)";
+        String sql = "INSERT INTO OrganizationType (type_name) VALUES (?)";
         boolean isSuccess = false;
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, type.getOrgTypeId());
-            pstmt.setString(2, type.getTypeName());
+            pstmt.setString(1, type.getTypeName());
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) isSuccess = true;

@@ -13,20 +13,18 @@ import db_project2026_team03.dto.RecruitmentDTO;
 public class RecruitmentDAO {
 
     public boolean insertRecruitment(RecruitmentDTO recruitment) {
-        String sql = "INSERT INTO Recruitment (recruitment_id, org_id, title, qualification, start_date, end_date, interview_required,recruit_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Recruitment (org_id, title, qualification, start_date, end_date, interview_required) VALUES (?, ?, ?, ?, ?, ?)";
         boolean isSuccess = false;
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, recruitment.getRecruitmentId());
-            pstmt.setInt(2, recruitment.getOrgId());
-            pstmt.setString(3, recruitment.getTitle());
-            pstmt.setString(4, recruitment.getQualification());
-            pstmt.setTimestamp(5, recruitment.getStartDate());
-            pstmt.setTimestamp(6, recruitment.getEndDate());
-            pstmt.setBoolean(7, recruitment.isInterviewRequired());
-            pstmt.setString(8, recruitment.getRecruitStatus());
+            pstmt.setInt(1, recruitment.getOrgId());
+            pstmt.setString(2, recruitment.getTitle());
+            pstmt.setString(3, recruitment.getQualification());
+            pstmt.setTimestamp(4, recruitment.getStartDate());
+            pstmt.setTimestamp(5, recruitment.getEndDate());
+            pstmt.setBoolean(6, recruitment.isInterviewRequired());
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) isSuccess = true;

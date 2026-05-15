@@ -13,16 +13,14 @@ import db_project2026_team03.dto.ScrapDTO;
 public class ScrapDAO {
 
     public boolean insertScrap(ScrapDTO scrap) {
-        String sql = "INSERT INTO Scrap (scrap_id, recruitment_id, student_id, created_at) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO Scrap (recruitment_id, student_id) VALUES (?, ?)";
         boolean isSuccess = false;
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, scrap.getScrapId());
-            pstmt.setInt(2, scrap.getRecruitmentId());
-            pstmt.setString(3, scrap.getStudentId());
-            pstmt.setTimestamp(4, scrap.getCreatedAt());
+            pstmt.setInt(1, scrap.getRecruitmentId());
+            pstmt.setString(2, scrap.getStudentId());
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) {

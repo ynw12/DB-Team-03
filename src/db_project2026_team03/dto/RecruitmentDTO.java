@@ -15,7 +15,7 @@ public class RecruitmentDTO {
     public RecruitmentDTO() {}
 
     public RecruitmentDTO(int recruitmentId, int orgId, String title, String qualification, 
-                          Timestamp startDate, Timestamp endDate, boolean interviewRequired, String recruitStatus) {
+                          Timestamp startDate, Timestamp endDate, boolean interviewRequired) {
         this.recruitmentId = recruitmentId;
         this.orgId = orgId;
         this.title = title;
@@ -23,7 +23,6 @@ public class RecruitmentDTO {
         this.startDate = startDate;
         this.endDate = endDate;
         this.interviewRequired = interviewRequired;
-        this.recruitStatus = recruitStatus;
     }
 
     public int getRecruitmentId() {return recruitmentId;}
@@ -40,7 +39,6 @@ public class RecruitmentDTO {
     public void setEndDate(Timestamp endDate){this.endDate = endDate;}
     public boolean isInterviewRequired() {return interviewRequired;}
     public void setInterviewRequired(boolean interviewRequired){this.interviewRequired = interviewRequired;}
-	public String getRecruitStatus() {return recruitStatus;}
-	public void setRecruitStatus(String recruitStatus) {this.recruitStatus = recruitStatus;}
-    
+    public String getRecruitStatus() {return recruitStatus;}
+    public void setRecruitStatus(String recruitStatus){this.recruitStatus = recruitStatus;}
 }

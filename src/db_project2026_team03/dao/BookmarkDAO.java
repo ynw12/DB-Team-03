@@ -13,16 +13,14 @@ import db_project2026_team03.dto.BookmarkDTO;
 public class BookmarkDAO {
 
     public boolean insertBookmark(BookmarkDTO bookmark) {
-        String sql = "INSERT INTO Bookmark (bookmark_id, org_id, student_id, created_at) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO Bookmark (org_id, student_id) VALUES (?, ?)";
         boolean isSuccess = false;
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, bookmark.getBookmarkId());
-            pstmt.setInt(2, bookmark.getOrgId());
-            pstmt.setString(3, bookmark.getStudentId());
-            pstmt.setTimestamp(4, bookmark.getCreatedAt());
+            pstmt.setInt(1, bookmark.getOrgId());
+            pstmt.setString(2, bookmark.getStudentId());
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) isSuccess = true;

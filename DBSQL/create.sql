@@ -34,7 +34,7 @@ CREATE TABLE Organization (
     org_type_id  INT, -- 소속 유형을 참조하는 ID (OrganizationType 테이블 연결)
     category_id  INT, -- 활동 분야를 참조하는 ID (Category 테이블 연결)
     description  TEXT, -- 동아리에 대한 전반적인 소개 글
-    short_description VARCHAR(200), -- 동아리에 대한 한 줄 소개 글
+    short_description TEXT, -- 동아리에 대한 한 줄 소개 글
     president_id VARCHAR(20), -- organizaion 대표의 학번 ID (Student 테이블 연결)
     org_status BOOLEAN DEFAULT TRUE, -- 동아리 활성화 여부 (True: 활성화, False: 폐동아리)
     FOREIGN KEY (org_type_id)  REFERENCES OrganizationType(org_type_id),

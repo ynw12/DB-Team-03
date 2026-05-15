@@ -39,5 +39,6 @@ public class RecruitmentDTO {
     public void setEndDate(Timestamp endDate){this.endDate = endDate;}
     public boolean isInterviewRequired() {return interviewRequired;}
     public void setInterviewRequired(boolean interviewRequired){this.interviewRequired = interviewRequired;}
-    
+    public String getRecruitStatus() {return recruitStatus;}
+    public void setRecruitStatus(String recruitStatus){this.recruitStatus = recruitStatus;}
 }

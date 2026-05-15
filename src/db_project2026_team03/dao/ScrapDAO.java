@@ -8,48 +8,49 @@ import java.util.ArrayList;
 import java.util.List;
 
 import db_project2026_team03.DBConnection;
-import db_project2026_team03.dto.BookmarkDTO;
+import db_project2026_team03.dto.ScrapDTO;
 
-public class BookmarkDAO {
+public class ScrapDAO {
 
-    public boolean insertBookmark(BookmarkDTO bookmark) {
-        String sql = "INSERT INTO Bookmark (org_id, student_id) VALUES (?, ?)";
+    public boolean insertScrap(ScrapDTO scrap) {
+        String sql = "INSERT INTO Scrap (recruitment_id, student_id) VALUES (?, ?)";
         boolean isSuccess = false;
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, bookmark.getOrgId());
-            pstmt.setString(2, bookmark.getStudentId());
+            pstmt.setInt(1, scrap.getRecruitmentId());
+            pstmt.setString(2, scrap.getStudentId());
 
             int rowsAffected = pstmt.executeUpdate();
-            if (rowsAffected > 0) isSuccess = true;
+            if (rowsAffected > 0) {
+                isSuccess = true;
+            }
 
         } catch (SQLException e) {
-            System.out.println("x Bookmark 등록 실패: " + e.getMessage());
+            System.out.println("xx Scrap 등록 실패: " + e.getMessage());
         }
         return isSuccess;
     }
-
-    public List<BookmarkDTO> selectAllBookmarks() {
-        String sql = "SELECT * FROM Bookmark";
-        List<BookmarkDTO> list = new ArrayList<>();
+    public List<ScrapDTO> selectAllScraps() {
+        String sql = "SELECT * FROM Scrap";
+        List<ScrapDTO> list = new ArrayList<>();
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql);
              ResultSet rs = pstmt.executeQuery()) {
 
             while (rs.next()) {
-                BookmarkDTO dto = new BookmarkDTO();
-                dto.setBookmarkId(rs.getInt("bookmark_id"));
-                dto.setOrgId(rs.getInt("org_id"));
+                ScrapDTO dto = new ScrapDTO();
+                dto.setScrapId(rs.getInt("scrap_id"));
+                dto.setRecruitmentId(rs.getInt("recruitment_id"));
                 dto.setStudentId(rs.getString("student_id"));
                 dto.setCreatedAt(rs.getTimestamp("created_at"));
                 list.add(dto);
             }
 
         } catch (SQLException e) {
-            System.out.println("x Bookmark 조회 실패: " + e.getMessage());
+            System.out.println("xx Scrap 조회 실패: " + e.getMessage());
         }
         return list;
     }

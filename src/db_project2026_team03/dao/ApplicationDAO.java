@@ -11,19 +11,18 @@ import db_project2026_team03.DBConnection;
 import db_project2026_team03.dto.ApplicationDTO;
 
 public class ApplicationDAO {
-
+	
+	// 
     public boolean insertApplication(ApplicationDTO app) {
-        String sql = "INSERT INTO Application (application_id, recruitment_id, student_id, self_intro, passStatus) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Application (recruitment_id, student_id, self_intro) VALUES (?, ?, ?)";
         boolean isSuccess = false;
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, app.getApplicationId());
-            pstmt.setInt(2, app.getRecruitmentId());
-            pstmt.setString(3, app.getStudentId());
-            pstmt.setString(4, app.getSelfIntro());
-            pstmt.setString(5, app.getPassStatus());
+        	pstmt.setInt(1, app.getRecruitmentId());
+            pstmt.setString(2, app.getStudentId());
+            pstmt.setString(3, app.getSelfIntro());
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) isSuccess = true;
@@ -33,7 +32,7 @@ public class ApplicationDAO {
         }
         return isSuccess;
     }
-
+    
     public List<ApplicationDTO> selectAllApplications() {
         String sql = "SELECT * FROM Application";
         List<ApplicationDTO> list = new ArrayList<>();
@@ -48,7 +47,7 @@ public class ApplicationDAO {
                 dto.setRecruitmentId(rs.getInt("recruitment_id"));
                 dto.setStudentId(rs.getString("student_id"));
                 dto.setSelfIntro(rs.getString("self_intro"));
-                dto.setPassStatus(rs.getString("status"));
+                dto.setPassStatus(rs.getString("pass_status"));
                 list.add(dto);
             }
 

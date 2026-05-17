@@ -6,7 +6,7 @@ public class ApplicationDTO {
     private String studentId;
     private String selfIntro;
     private String passStatus;
-
+ 
     public ApplicationDTO() {}
 
     public ApplicationDTO(int applicationId, int recruitmentId, String studentId, 

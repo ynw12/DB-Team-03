@@ -15,7 +15,7 @@ CREATE TABLE OrganizationType (
 -- Organization 활동 분야 ex) 학술,봉사,취미,운동과 같이 organizaion의 장르 구분용 테이블
 CREATE TABLE Category (
     category_id   INT AUTO_INCREMENT PRIMARY KEY, -- 카테고리 식별 고유 ID
-    category_name VARCHAR(50) NOT NULL -- 분야 이름 (예: 학술, 봉사, 취미, 운동 등)
+    category_name VARCHAR(50) NOT NULL -- 분야 이름 (예: 학술, 봉사, 공연, 체육 등)
 );
 
 -- Organization의 운영진 담당 학생 정보 테이블
@@ -34,6 +34,7 @@ CREATE TABLE Organization (
     org_type_id  INT, -- 소속 유형을 참조하는 ID (OrganizationType 테이블 연결)
     category_id  INT, -- 활동 분야를 참조하는 ID (Category 테이블 연결)
     description  TEXT, -- 동아리에 대한 전반적인 소개 글
+    short_description TEXT, -- 동아리에 대한 한 줄 소개 글
     president_id VARCHAR(20), -- organizaion 대표의 학번 ID (Student 테이블 연결)
     org_status BOOLEAN DEFAULT TRUE, -- 동아리 활성화 여부 (True: 활성화, False: 폐동아리)
     FOREIGN KEY (org_type_id)  REFERENCES OrganizationType(org_type_id),
@@ -64,6 +65,8 @@ CREATE TABLE Application (
     pass_status VARCHAR(20) DEFAULT '대기',
     -- 현재 심사 상태 (대기, 합격, 불합격)
     CHECK (pass_status IN ('대기', '합격', '불합격')), 
+    -- 모집 공고, 학생 중복 application 방지
+    UNIQUE KEY uq_application (recruitment_id, student_id),
     -- Application → Recruitment|recruitment_id CASCADE공고 삭제되면 지원서도 의미 없음
     FOREIGN KEY (recruitment_id) REFERENCES Recruitment(recruitment_id) ON DELETE CASCADE,
     FOREIGN KEY (student_id)     REFERENCES Student(student_id)

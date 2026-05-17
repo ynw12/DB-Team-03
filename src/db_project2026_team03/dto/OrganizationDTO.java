@@ -7,7 +7,7 @@ public class OrganizationDTO {
     private int categoryId;//category_id (INT)
     private String description;//description (TEXT)
     private String shortDescription;//short_description (TEXT)
-	private String presidentId; //president_id (VARCHAR)
+	  private String presidentId; //president_id (VARCHAR)
     private boolean orgStatus;//orgStatus(BOOLEAN)
 
     public OrganizationDTO() {}
@@ -35,7 +35,7 @@ public class OrganizationDTO {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
     public String getShortDescription() { return shortDescription; }
-	public void setShortDescription(String shortDescription) { this.shortDescription = shortDescription; }
+	  public void setShortDescription(String shortDescription) { this.shortDescription = shortDescription; }
     public String getPresidentId() { return presidentId; }
     public void setPresidentId(String presidentId) { this.presidentId = presidentId; }
     public boolean isOrgStatus() { return orgStatus; }

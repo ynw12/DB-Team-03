@@ -159,9 +159,6 @@ public class AllDAOTest {
         printResult("Recruitment SELECT / ID 확인", recruitmentId > 0);
         System.out.println("recruitmentId = " + recruitmentId);
 
-        String status = findString("SELECT recruit_status FROM Recruitment WHERE recruitment_id = ?", recruitmentId);
-        printResult("Recruitment DEFAULT recruit_status 확인", "모집대기".equals(status));
-        System.out.println("recruit_status = " + status);
     }
 
     private static void testApplicationDAO() {

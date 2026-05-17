@@ -10,10 +10,12 @@ SELECT
     o.org_id, -- 모집 동아리 식별 id
     o.org_name, -- 모집 동아리 명
     o.description, -- 모집 동아리 전반적인 소개 글
+    o.short_description, -- 모집 동아리에 대한 한 줄 소개 글
     ot.type_name AS org_type, -- org_type: 모집 동아리 단체 유형
     c.category_name, -- 모집 동아리 장르 유형
     r.recruitment_id, -- 모집 공고 식별 id
     r.title AS recruitment_title, -- 모집 공고의 제목
+    r.qualification, -- 모집 공고의 자격 요건
     r.start_date, -- 모집이 시작되는 날짜와 시간
     r.end_date, -- 모집이 마감되는 날짜와 시간
     r.interview_required, -- 면접 진행 여부 (True: 면접 있음, False: 서류만)

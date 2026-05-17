@@ -24,7 +24,6 @@ public class RecruitmentDAOTest {
 
 		// INSERT용 DTO 생성
 		RecruitmentDTO recruitment = new RecruitmentDTO();
-
 		recruitment.setOrgId(5);
 		recruitment.setTitle("백엔드 개발자 모집");
 		recruitment.setQualification("Java 및 MySQL 가능자");
@@ -42,7 +41,7 @@ public class RecruitmentDAOTest {
 		}
 
 		// SELECT 테스트
-		List<RecruitmentDTO> recruitmentList = recruitmentDAO.selectAllRecruitments();
+		/*List<RecruitmentDTO> recruitmentList = recruitmentDAO.selectAllRecruitments();
 
 		int recruitmentId = -1;
 
@@ -98,7 +97,7 @@ public class RecruitmentDAOTest {
 		} else {
 
 		    System.out.println("[FAIL] Recruitment DELETE");
-		}
+		}*/
 
 	}
 

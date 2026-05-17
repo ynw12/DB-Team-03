@@ -75,7 +75,7 @@ public class RecruitmentDAO {
              ResultSet rs = pstmt.executeQuery()) {
 
             System.out.println("\n=====  현재 진행 중인 모집 공고 =====");
-            System.out.println("공고 제목 | 동아리명 | 동아리 소개 | 마감일");
+            System.out.println("번호 | 공고 제목 | 동아리명 | 동아리 소개 | 마감일");
             System.out.println("------------------------------------");
 
             boolean hasData = false;
@@ -87,7 +87,7 @@ public class RecruitmentDAO {
                 String title = rs.getString("recruitment_title");
                 java.sql.Date endDate = rs.getDate("end_date");
 
-                System.out.printf("%s | %s | %s | %s\n", title, orgName, orgShort, endDate.toString());
+                System.out.printf("%d | %s | %s | %s | %s\n", id, title, orgName, orgShort, endDate.toString());
             }
 
             if (!hasData) {

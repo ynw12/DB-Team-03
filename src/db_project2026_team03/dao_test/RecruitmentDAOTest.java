@@ -41,7 +41,7 @@ public class RecruitmentDAOTest {
 		}
 
 		// SELECT 테스트
-		/*List<RecruitmentDTO> recruitmentList = recruitmentDAO.selectAllRecruitments();
+		List<RecruitmentDTO> recruitmentList = recruitmentDAO.getAllRecruitments();
 
 		int recruitmentId = -1;
 
@@ -97,7 +97,7 @@ public class RecruitmentDAOTest {
 		} else {
 
 		    System.out.println("[FAIL] Recruitment DELETE");
-		}*/
+		}
 
 	}
 

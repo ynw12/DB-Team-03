@@ -13,7 +13,7 @@ import db_project2026_team03.dto.OrganizationDTO;
 public class OrganizationDAO {
 
     public boolean insertOrganization(OrganizationDTO org) {
-        String sql = "INSERT INTO Organization (org_name, org_type_id, category_id, description, president_id, org_status) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Organization (org_name, org_type_id, category_id, description, short_description, president_id, org_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         boolean isSuccess = false;
 
         try (Connection conn = DBConnection.getConnection();
@@ -23,8 +23,9 @@ public class OrganizationDAO {
             pstmt.setInt(2, org.getOrgTypeId());
             pstmt.setInt(3, org.getCategoryId());
             pstmt.setString(4, org.getDescription());
-            pstmt.setString(5, org.getPresidentId());
-            pstmt.setBoolean(6, org.isOrgStatus());
+            pstmt.setString(5, org.getShort_description());
+            pstmt.setString(6, org.getPresidentId());
+            pstmt.setBoolean(7, org.isOrgStatus());
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0)
@@ -51,6 +52,7 @@ public class OrganizationDAO {
                 dto.setOrgTypeId(rs.getInt("org_type_id"));
                 dto.setCategoryId(rs.getInt("category_id"));
                 dto.setDescription(rs.getString("description"));
+                dto.setDescription(rs.getString("short_description"));
                 dto.setPresidentId(rs.getString("president_id"));
                 dto.setOrgStatus(rs.getBoolean("org_status"));
                 list.add(dto);

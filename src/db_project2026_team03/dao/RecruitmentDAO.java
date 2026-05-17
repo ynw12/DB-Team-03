@@ -66,7 +66,7 @@ public class RecruitmentDAO {
 
     // 모집 중인 전체 공고 목록 출력
     public void printAllRecruitments() {
-        String sql = "SELECT recruitment_id, org_name, recruitment_title, end_date " +
+        String sql = "SELECT recruitment_id, org_name, short_description, recruitment_title, end_date " +
                      "FROM vw_active_recruitments " +
                      "ORDER BY end_date ASC";
 
@@ -75,7 +75,7 @@ public class RecruitmentDAO {
              ResultSet rs = pstmt.executeQuery()) {
 
             System.out.println("\n=====  현재 진행 중인 모집 공고 =====");
-            System.out.println("번호 | 동아리명 | 공고 제목 | 마감일");
+            System.out.println("공고 제목 | 동아리명 | 동아리 소개 | 마감일");
             System.out.println("------------------------------------");
 
             boolean hasData = false;
@@ -83,10 +83,11 @@ public class RecruitmentDAO {
                 hasData = true;
                 int id = rs.getInt("recruitment_id");
                 String orgName = rs.getString("org_name");
+                String orgShort = rs.getString("short_description");
                 String title = rs.getString("recruitment_title");
                 java.sql.Date endDate = rs.getDate("end_date");
 
-                System.out.printf("%d | %s | %s | %s\n", id, orgName, title, endDate.toString());
+                System.out.printf("%s | %s | %s | %s\n", title, orgName, orgShort, endDate.toString());
             }
 
             if (!hasData) {
@@ -233,6 +234,4 @@ public class RecruitmentDAO {
 
         return isSuccess;
     }
-
-
 }

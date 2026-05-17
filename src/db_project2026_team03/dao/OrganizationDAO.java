@@ -23,7 +23,7 @@ public class OrganizationDAO {
             pstmt.setInt(2, org.getOrgTypeId());
             pstmt.setInt(3, org.getCategoryId());
             pstmt.setString(4, org.getDescription());
-            pstmt.setString(5, org.getShort_description());
+            pstmt.setString(5, org.getShortDescription());
             pstmt.setString(6, org.getPresidentId());
             pstmt.setBoolean(7, org.isOrgStatus());
 
@@ -52,7 +52,7 @@ public class OrganizationDAO {
                 dto.setOrgTypeId(rs.getInt("org_type_id"));
                 dto.setCategoryId(rs.getInt("category_id"));
                 dto.setDescription(rs.getString("description"));
-                dto.setDescription(rs.getString("short_description"));
+                dto.setShortDescription(rs.getString("short_description"));
                 dto.setPresidentId(rs.getString("president_id"));
                 dto.setOrgStatus(rs.getBoolean("org_status"));
                 list.add(dto);

@@ -66,7 +66,7 @@ public class RecruitmentDAO {
 
     // 모집 중인 전체 공고 목록 출력
     public void printAllRecruitments() {
-        String sql = "SELECT recruitment_id, org_name, short_description, recruitment_title, end_date " +
+        String sql = "SELECT recruitment_id, org_name, recruitment_title, end_date " +
                      "FROM vw_active_recruitments " +
                      "ORDER BY end_date ASC";
 
@@ -75,7 +75,7 @@ public class RecruitmentDAO {
              ResultSet rs = pstmt.executeQuery()) {
 
             System.out.println("\n=====  현재 진행 중인 모집 공고 =====");
-            System.out.println("번호 | 공고 제목 | 동아리명 | 동아리 소개 | 마감일");
+            System.out.println("번호 | 동아리명 | 공고 제목 | 마감일");
             System.out.println("------------------------------------");
 
             boolean hasData = false;
@@ -83,11 +83,10 @@ public class RecruitmentDAO {
                 hasData = true;
                 int id = rs.getInt("recruitment_id");
                 String orgName = rs.getString("org_name");
-                String orgShort = rs.getString("short_description");
                 String title = rs.getString("recruitment_title");
                 java.sql.Date endDate = rs.getDate("end_date");
 
-                System.out.printf("%d | %s | %s | %s | %s\n", id, title, orgName, orgShort, endDate.toString());
+                System.out.printf("%d | %s | %s | %s\n", id, orgName, title, endDate.toString());
             }
 
             if (!hasData) {
@@ -140,7 +139,10 @@ public class RecruitmentDAO {
 
      // 특정 모집 공고 상세 조회
     public void printRecruitmentDetail(int recruitmentId) {
-        String sql = "SELECT *, DATEDIFF(end_date, NOW()) as d_day FROM vw_all_recruitments WHERE recruitment_id = ?";
+        String sql = "SELECT v.*, r.qualification, DATEDIFF(v.end_date, NOW()) as d_day " +
+                     "FROM vw_active_recruitments v " +
+                     "JOIN Recruitment r ON v.recruitment_id = r.recruitment_id " +
+                     "WHERE v.recruitment_id = ?";
 
         try (Connection conn = DBConnection.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -150,6 +152,7 @@ public class RecruitmentDAO {
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     String orgName = rs.getString("org_name");
+                    String shortDesc = rs.getString("short_description");
                     String title = rs.getString("recruitment_title");      
                     String qualification = rs.getString("qualification");
                     boolean interview = rs.getBoolean("interview_required");
@@ -162,7 +165,11 @@ public class RecruitmentDAO {
                     System.out.println("\n============================================");
                     System.out.println("  [" + dDayText + "] " + title);
                     System.out.println("============================================");
-                    System.out.println("▶ 동아리명 : " + orgName);
+                    if (shortDesc != null && !shortDesc.trim().isEmpty()) {
+                        System.out.println("▶ 동아리명 : " + orgName + " (" + shortDesc + ")");
+                    } else {
+                        System.out.println("▶ 동아리명 : " + orgName);
+                    }
                     System.out.println("▶ 공고제목 : " + title);
                     System.out.println("▶ 모집기간 : " + start + " ~ " + end);
                     System.out.println("▶ 면접여부 : " + (interview ? "있음 (면접 후 최종 선발)" : "없음 (서류 전형만 진행)"));
@@ -234,4 +241,6 @@ public class RecruitmentDAO {
 
         return isSuccess;
     }
+
+
 }

@@ -139,7 +139,10 @@ public class RecruitmentDAO {
 
      // 특정 모집 공고 상세 조회
     public void printRecruitmentDetail(int recruitmentId) {
-        String sql = "SELECT *, DATEDIFF(end_date, NOW()) as d_day FROM vw_all_recruitments WHERE recruitment_id = ?";
+        String sql = "SELECT v.*, r.qualification, DATEDIFF(v.end_date, NOW()) as d_day " +
+                     "FROM vw_active_recruitments v " +
+                     "JOIN Recruitment r ON v.recruitment_id = r.recruitment_id " +
+                     "WHERE v.recruitment_id = ?";
 
         try (Connection conn = DBConnection.getConnection();
                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -149,6 +152,7 @@ public class RecruitmentDAO {
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     String orgName = rs.getString("org_name");
+                    String shortDesc = rs.getString("short_description");
                     String title = rs.getString("recruitment_title");      
                     String qualification = rs.getString("qualification");
                     boolean interview = rs.getBoolean("interview_required");
@@ -161,7 +165,11 @@ public class RecruitmentDAO {
                     System.out.println("\n============================================");
                     System.out.println("  [" + dDayText + "] " + title);
                     System.out.println("============================================");
-                    System.out.println("▶ 동아리명 : " + orgName);
+                    if (shortDesc != null && !shortDesc.trim().isEmpty()) {
+                        System.out.println("▶ 동아리명 : " + orgName + " (" + shortDesc + ")");
+                    } else {
+                        System.out.println("▶ 동아리명 : " + orgName);
+                    }
                     System.out.println("▶ 공고제목 : " + title);
                     System.out.println("▶ 모집기간 : " + start + " ~ " + end);
                     System.out.println("▶ 면접여부 : " + (interview ? "있음 (면접 후 최종 선발)" : "없음 (서류 전형만 진행)"));

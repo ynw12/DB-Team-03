@@ -251,6 +251,7 @@ public class Main {
             System.out.println("\n================= [운영진 메뉴] =================");
             System.out.println("1. 신규 모집 공고 등록         2. 등록된 모집 공고 수정");
             System.out.println("3. 모집 공고 삭제             4. 모집 공고 마감 처리");
+            System.out.println("5. 지원자 조회               6. 합격/불합격 처리");
             System.out.println("0. 로그아웃");
             System.out.println("=================================================");
             System.out.print("▶ 원하시는 관리 작업 번호를 선택하세요: ");
@@ -332,6 +333,21 @@ public class Main {
                         if (recruitmentDao.updateRecruitment(closeRecruit)) {
                             System.out.println("해당 공고의 모집이 조기 마감 처리되었습니다.");
                         }
+                        break;
+                        
+                    case 5:
+                        System.out.println("\n--- 지원자 목록 조회 ---");
+                        applicationDao.getApplicationsByOrg(loginedStudentId);
+                        break;
+
+                    case 6:
+                        System.out.println("\n--- 합격/불합격 처리 ---");
+                        applicationDao.getApplicationsByOrg(loginedStudentId); // 목록 먼저 출력
+                        System.out.print("▶ 처리할 지원서 ID 입력: ");
+                        int appId = Integer.parseInt(sc.nextLine().trim());
+                        System.out.print("▶ 처리 결과 입력 (합격/불합격): ");
+                        String status = sc.nextLine().trim();
+                        applicationDao.updatePassStatus(appId, status);
                         break;
 
                     case 0:

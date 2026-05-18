@@ -36,31 +36,11 @@ public class Main {
                 break;
             }
 
-            //step1.입력받은 학번이 존재하는지 확인
-            boolean studentExists = false;
-            List<StudentDTO> students = studentDao.selectAllStudents();
-            for (StudentDTO s : students) {
-                if (s.getStudentId().equals(input)) {
-                    studentExists = true;
-                    break;
-                }
-            }
-
-            if (studentExists) {
+            if (studentDao.checkStudentExist(input)) {
                 loginedStudentId = input;
                 System.out.println("\n로그인 성공(접속 학번: " + loginedStudentId + ")");
 
-                //step2. 권한 분기: 해당 학번이 운영진인지 확인
-                boolean isAdmin = false;
-                List<OrganizationDTO> orgs = orgDao.selectAllOrganizations();
-                for (OrganizationDTO o : orgs) {
-                    if (o.getPresidentId() != null && o.getPresidentId().equals(loginedStudentId)) {
-                        isAdmin = true;
-                        break;
-                    }
-                }
-
-                if (isAdmin) {
+                if (orgDao.checkIsAdmin(loginedStudentId)) {
                     System.out.println("[운영진] 메뉴로 진입합니다.");
                     runAdminMenu();
                 } else {

@@ -180,4 +180,19 @@ public class OrganizationDAO {
             System.out.println("xx 동아리 상세 조회 실패: " + e.getMessage());
         }
     }
+    public boolean checkIsAdmin(String studentId) {
+        String sql = "SELECT 1 FROM Organization WHERE president_id = ? LIMIT 1";
+        
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, studentId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                return rs.next(); //일치하는 운영진 데이터가 있으면 true,없으면 false
+            }
+        } catch (SQLException e) {
+            System.out.println("xx 운영진 권한 확인 실패: " + e.getMessage());
+        }
+        return false;
+    }
 }

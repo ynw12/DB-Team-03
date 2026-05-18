@@ -88,7 +88,11 @@ public class RecruitmentDAOTest {
 		}
 
 		// DELETE 테스트
-		boolean deleteResult = recruitmentDAO.deleteRecruitment(recruitmentId);
+		//CLI 구현 후 org_id로 자동 연결할 것
+		int currentOrgId = 1; // 테스트용 운영진 동아리 ID
+
+		boolean deleteResult =
+		    recruitmentDAO.deleteRecruitment(recruitmentId, currentOrgId);
 
 		if (deleteResult) {
 

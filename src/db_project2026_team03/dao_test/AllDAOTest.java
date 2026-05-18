@@ -185,6 +185,28 @@ public class AllDAOTest {
         String passStatus = findString("SELECT pass_status FROM Application WHERE application_id = ?", applicationId);
         printResult("Application DEFAULT pass_status 확인", "대기".equals(passStatus));
         System.out.println("pass_status = " + passStatus);
+        
+     // [지원자 조회] 테스트
+        System.out.println("\n--- getApplicationsByOrg 테스트 ---");
+        dao.getApplicationsByOrg(studentId); // AllDAOTest가 생성한 운영진 학번 재사용
+
+        // [합격 처리] 테스트
+        System.out.println("\n--- updatePassStatus 합격 테스트 ---");
+        boolean passResult = dao.updatePassStatus(applicationId, "합격");
+        printResult("합격 UPDATE", passResult);
+
+        String status = findString("SELECT pass_status FROM Application WHERE application_id = ?", applicationId);
+        printResult("pass_status = 합격 확인", "합격".equals(status));
+
+        // [불합격 처리] 테스트
+        System.out.println("\n--- updatePassStatus 불합격 테스트 ---");
+        boolean failResult = dao.updatePassStatus(applicationId, "불합격");
+        printResult("불합격 UPDATE", failResult);
+
+        // [rollback] 테스트
+        System.out.println("\n--- updatePassStatus 존재하지 않는 ID 테스트 ---");
+        boolean rollbackResult = dao.updatePassStatus(-1, "합격");
+        printResult("존재하지 않는 ID → false 반환 확인", !rollbackResult);
     }
 
     private static void testBookmarkDAO() {
@@ -364,4 +386,6 @@ public class AllDAOTest {
             }
         }
     }
+    
+    
 }

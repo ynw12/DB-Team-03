@@ -171,7 +171,7 @@ public class AllDAOTest {
         dto.setStudentId(studentId);
         dto.setSelfIntro(PREFIX + " 자기소개서");
 
-        boolean inserted = dao.insertApplication(dto);
+        boolean inserted = dao.createApplication(dto);
         printResult("Application INSERT", inserted);
 
         int applicationId = findInt(
@@ -196,7 +196,7 @@ public class AllDAOTest {
         dto.setOrgId(orgId);
         dto.setStudentId(studentId);
 
-        boolean inserted = dao.insertBookmark(dto);
+        boolean inserted = dao.createBookmark(dto);
         printResult("Bookmark INSERT", inserted);
 
         int bookmarkId = findInt(
@@ -221,7 +221,7 @@ public class AllDAOTest {
         dto.setRecruitmentId(recruitmentId);
         dto.setStudentId(studentId);
 
-        boolean inserted = dao.insertScrap(dto);
+        boolean inserted = dao.createScrap(dto);
         printResult("Scrap INSERT", inserted);
 
         int scrapId = findInt(

@@ -14,7 +14,7 @@ import db_project2026_team03.dto.BookmarkDTO;
 public class BookmarkDAO {
 
    // [즐겨찾기 추가] 특정 동아리를 즐겨찾기에 추가 
-   public boolean insertBookmark(BookmarkDTO bookmark) {
+   public boolean createBookmark(BookmarkDTO bookmark) {
        String sql = "INSERT INTO Bookmark (org_id, student_id) VALUES (?, ?)";
        boolean isSuccess = false;
        
@@ -77,7 +77,7 @@ public class BookmarkDAO {
     // [내 즐겨찾기 조회] 학번으로 조회
     public void getBookmarksByStudent(String studentId) {
         String sql =
-            "SELECT org_name, org_type, category_name, created_at " +
+            "SELECT bookmark_id, org_name, org_type, category_name, created_at " +
             "FROM vw_student_bookmark " +
             "WHERE student_id = ?";
  
@@ -94,11 +94,13 @@ public class BookmarkDAO {
                 boolean hasResult = false;
                 while (rs.next()) {
                     hasResult = true;
+                    int id = rs.getInt("bookmark_id");
                     String orgName      = rs.getString("org_name");
                     String orgType      = rs.getString("org_type");
                     String categoryName = rs.getString("category_name");
                     Timestamp createdAt = rs.getTimestamp("created_at");
                     System.out.println("--------------------------------------------");
+                    System.out.println("▶ 즐겨찾기 ID  : " + id);
                     System.out.println("▶ 동아리명  : " + orgName);
                     System.out.println("▶ 단체 유형 : " + orgType);
                     System.out.println("▶ 카테고리  : " + categoryName);

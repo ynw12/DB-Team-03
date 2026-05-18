@@ -12,8 +12,8 @@ import db_project2026_team03.dto.ApplicationDTO;
 
 public class ApplicationDAO {
 	
-	// [지원하기] insert 및 안내 출력문
-    public boolean insertApplication(ApplicationDTO app) {
+	// [지원하기] create 및 안내 출력문
+    public boolean createApplication(ApplicationDTO app) {
         String sql = "INSERT INTO Application (recruitment_id, student_id, self_intro) VALUES (?, ?, ?)";
         boolean isSuccess = false;
 

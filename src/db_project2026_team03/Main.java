@@ -167,7 +167,7 @@ public class Main {
                             BookmarkDTO newBookmark = new BookmarkDTO();
                             newBookmark.setOrgId(orgId);
                             newBookmark.setStudentId(loginedStudentId);
-                            bookmarkDao.insertBookmark(newBookmark);
+                            bookmarkDao.createBookmark(newBookmark);
                         }
                         break;
                     case 0:
@@ -224,12 +224,12 @@ public class Main {
                             newApp.setStudentId(loginedStudentId);
                             newApp.setSelfIntro(intro);
 
-                            applicationDao.insertApplication(newApp);
+                            applicationDao.createApplication(newApp);
                         } else if (actionChoice == 2) {
                             ScrapDTO newScrap = new ScrapDTO();
                             newScrap.setRecruitmentId(recruitId);
                             newScrap.setStudentId(loginedStudentId);
-                            scrapDao.insertScrap(newScrap);
+                            scrapDao.createScrap(newScrap);
                         }
                         break;
                     case 0:

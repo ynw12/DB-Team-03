@@ -180,4 +180,29 @@ public class OrganizationDAO {
             System.out.println("xx 동아리 상세 조회 실패: " + e.getMessage());
         }
     }
+    
+    // 운영진 학생 학번(president_id)으로 동아리 org_id 조회
+    public int getOrgIdByPresidentId(String presidentId) {
+        String sql = "SELECT org_id FROM Organization "
+                   + "WHERE president_id = ? AND org_status = TRUE";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, presidentId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("org_id");
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println("xx 운영진 org_id 조회 실패: " + e.getMessage());
+        }
+
+        return -1; // 해당 학생이 운영진이 아닌 경우
+    }
+
+    
 }

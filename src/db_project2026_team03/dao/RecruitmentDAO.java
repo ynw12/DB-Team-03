@@ -218,9 +218,11 @@ public class RecruitmentDAO {
         return isSuccess;
     }
     
-    public boolean deleteRecruitment(int recruitmentId) {
+    public boolean deleteRecruitment(int recruitmentId, int currentOrgId) {
 
-        String sql = "DELETE FROM Recruitment WHERE recruitment_id=?";
+        String sql = "DELETE FROM Recruitment "
+                   + "WHERE recruitment_id = ? "
+                   + "AND org_id = ?";
 
         boolean isSuccess = false;
 
@@ -228,11 +230,15 @@ public class RecruitmentDAO {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, recruitmentId);
+            pstmt.setInt(2, currentOrgId);
 
             int rowsAffected = pstmt.executeUpdate();
 
             if (rowsAffected > 0) {
                 isSuccess = true;
+                System.out.println("Recruitment 삭제 성공");
+            } else {
+                System.out.println("해당 공고가 존재하지 않거나 삭제 권한이 없습니다.");
             }
 
         } catch (SQLException e) {
@@ -241,6 +247,7 @@ public class RecruitmentDAO {
 
         return isSuccess;
     }
+
 
 
 }

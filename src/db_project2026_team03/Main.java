@@ -288,11 +288,15 @@ public class Main {
 
                     case 3:
                         System.out.println("\n--- 모집 공고 파기/삭제 ---");
-                        System.out.print("▶ 완전히 삭제할 공고 번호를 입력하세요: ");
+                        
+                        System.out.print("▶동아리 번호 입력: ");
+                        int currentOrgId = Integer.parseInt(sc.nextLine().trim());
+                        
+                        System.out.print("▶ 삭제할 공고 번호를 입력하세요: ");
                         int deleteId = Integer.parseInt(sc.nextLine().trim());
                         
-                        if (recruitmentDao.deleteRecruitment(deleteId)) {
-                            System.out.println("해당 공고 데이터가 안전하게 파기되었습니다.");
+                        if (recruitmentDao.deleteRecruitment(deleteId, currentOrgId)) {
+                            System.out.println("공고 데이터 파기 프로세스가 완료되었습니다.");
                         }
                         break;
 

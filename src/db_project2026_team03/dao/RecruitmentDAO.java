@@ -218,6 +218,50 @@ public class RecruitmentDAO {
         return isSuccess;
     }
     
+ // 특정 동아리의 모집 공고 목록 출력
+    public void printRecruitmentsByOrgId(int orgId) {
+        String sql = "SELECT recruitment_id, title, start_date, end_date, interview_required "
+                   + "FROM Recruitment "
+                   + "WHERE org_id = ? "
+                   + "ORDER BY end_date ASC";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, orgId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                System.out.println("\n===== 내 동아리 모집 공고 목록 =====");
+                System.out.println("공고번호 | 제목 | 시작일 | 마감일 | 면접여부");
+                System.out.println("----------------------------------------");
+
+                boolean hasData = false;
+
+                while (rs.next()) {
+                    hasData = true;
+                    System.out.printf(
+                        "%d | %s | %s | %s | %s\n",
+                        rs.getInt("recruitment_id"),
+                        rs.getString("title"),
+                        rs.getTimestamp("start_date"),
+                        rs.getTimestamp("end_date"),
+                        rs.getBoolean("interview_required") ? "있음" : "없음"
+                    );
+                }
+
+                if (!hasData) {
+                    System.out.println("등록된 모집 공고가 없습니다.");
+                }
+
+                System.out.println("========================================\n");
+            }
+        } catch (SQLException e) {
+            System.out.println("xx 내 모집 공고 목록 조회 실패: " + e.getMessage());
+        }
+    }
+
+
+    
     public boolean deleteRecruitment(int recruitmentId, int currentOrgId) {
 
         String sql = "DELETE FROM Recruitment "

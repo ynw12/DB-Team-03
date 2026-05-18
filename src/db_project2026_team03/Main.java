@@ -83,7 +83,7 @@ public class Main {
                         bookmarkDao.getBookmarksByStudent(loginedStudentId);
                         scrapDao.getScrapsByStudent(loginedStudentId);
                         break;
-                    case 9:
+                    case 0:
                         System.out.println("학생 메뉴를 종료하고 로그아웃합니다.");
                         isRunning = false;
                         break;
@@ -266,23 +266,38 @@ public class Main {
                         System.out.println("\n--- 모집 공고 내용 수정 ---");
                         System.out.print("▶ 수정할 공고의 번호를 입력하세요: ");
                         int updateId = Integer.parseInt(sc.nextLine().trim());
-                        System.out.print("▶ [변경] 새로운 공고 제목: ");
-                        String newTitle = sc.nextLine().trim();
-                        System.out.print("▶ [변경] 새로운 자격 요건: ");
-                        String newQual = sc.nextLine().trim();
-                        System.out.print("▶ [변경] 면접 필수 여부 (true/false): ");
-                        boolean newIntv = Boolean.parseBoolean(sc.nextLine().trim());
+                        
+                        RecruitmentDTO updateRecruit = recruitmentDao.getRecruitmentById(updateId);
+                        
+                        if (updateRecruit == null) {
+                            System.out.println("해당 번호의 공고를 찾을 수 없습니다.");
+                            break;
+                        }
 
-                        RecruitmentDTO updateRecruit = new RecruitmentDTO();
-                        updateRecruit.setRecruitmentId(updateId);
-                        updateRecruit.setTitle(newTitle);
-                        updateRecruit.setQualification(newQual);
-                        updateRecruit.setStartDate(new Timestamp(System.currentTimeMillis()));
-                        updateRecruit.setEndDate(new Timestamp(System.currentTimeMillis() + (3L * 24 * 60 * 60 * 1000)));
-                        updateRecruit.setInterviewRequired(newIntv);
+                        System.out.println("[현재 제목] " + updateRecruit.getTitle());
+                        System.out.print("▶ 새 제목 입력 (엔터 입력 시 기존 제목 유지): ");
+                        String newTitle = sc.nextLine().trim();
+                        if (!newTitle.isEmpty()) {
+                            updateRecruit.setTitle(newTitle);
+                        }
+
+                        System.out.println("[현재 자격 요건] " + updateRecruit.getQualification());
+                        System.out.print("▶ 새 자격 요건 입력 (엔터 입력 시 기존 요건 유지): ");
+                        String newQual = sc.nextLine().trim();
+                        if (!newQual.isEmpty()) {
+                            updateRecruit.setQualification(newQual);
+                        }
+
+                        System.out.println("[현재 면접 여부] " + (updateRecruit.isInterviewRequired() ? "있음" : "없음"));
+                        System.out.print("▶ 면접 여부 변경 (1: 있음 / 2: 없음 / 엔터 입력 시 기존 유지): ");
+                        String interviewInput = sc.nextLine().trim();
+                        if (!interviewInput.isEmpty()) {
+                            if (interviewInput.equals("1")) updateRecruit.setInterviewRequired(true);
+                            else if (interviewInput.equals("2")) updateRecruit.setInterviewRequired(false);
+                        }
 
                         if (recruitmentDao.updateRecruitment(updateRecruit)) {
-                            System.out.println("공고 수정 작업이 완료되었습니다.");
+                            System.out.println("공고 수정 작업이 성공적으로 완료되었습니다.");
                         }
                         break;
 
@@ -301,17 +316,18 @@ public class Main {
                         break;
 
                     case 4:
-                        System.out.println("\n--- 모집 공고 즉시 마감 처리 ---");
+                    	System.out.println("\n--- 모집 공고 즉시 마감 처리 ---");
                         System.out.print("▶ 강제 마감할 공고 번호를 입력하세요: ");
                         int closeId = Integer.parseInt(sc.nextLine().trim());
+           
+                        RecruitmentDTO closeRecruit = recruitmentDao.getRecruitmentById(closeId);
+                        
+                        if (closeRecruit == null) {
+                            System.out.println("해당 번호의 공고를 찾을 수 없습니다.");
+                            break;
+                        }
 
-                        RecruitmentDTO closeRecruit = new RecruitmentDTO();
-                        closeRecruit.setRecruitmentId(closeId);
-                        closeRecruit.setTitle("[조기 마감된 공고]");
-                        closeRecruit.setQualification("마감되었습니다.");
-                        closeRecruit.setStartDate(new Timestamp(System.currentTimeMillis() - 1000));
-                        closeRecruit.setEndDate(new Timestamp(System.currentTimeMillis())); //마감 기한을 현재로 세팅함
-                        closeRecruit.setInterviewRequired(false);
+                        closeRecruit.setEndDate(new Timestamp(System.currentTimeMillis()));
 
                         if (recruitmentDao.updateRecruitment(closeRecruit)) {
                             System.out.println("해당 공고의 모집이 조기 마감 처리되었습니다.");

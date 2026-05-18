@@ -247,7 +247,32 @@ public class RecruitmentDAO {
 
         return isSuccess;
     }
-
+    public RecruitmentDTO getRecruitmentById(int recruitmentId) {
+        String sql = "SELECT * FROM Recruitment WHERE recruitment_id = ?";
+        
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, recruitmentId);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    RecruitmentDTO dto = new RecruitmentDTO();
+                    dto.setRecruitmentId(rs.getInt("recruitment_id"));
+                    dto.setOrgId(rs.getInt("org_id"));
+                    dto.setTitle(rs.getString("title"));
+                    dto.setQualification(rs.getString("qualification"));
+                    dto.setStartDate(rs.getTimestamp("start_date"));
+                    dto.setEndDate(rs.getTimestamp("end_date"));
+                    dto.setInterviewRequired(rs.getBoolean("interview_required"));
+                    return dto;
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("xx Recruitment 조회 실패: " + e.getMessage());
+        }
+        return null;
+    }
 
 
 }

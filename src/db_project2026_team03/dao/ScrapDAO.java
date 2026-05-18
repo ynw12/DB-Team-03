@@ -14,7 +14,7 @@ import db_project2026_team03.dto.ScrapDTO;
 
 public class ScrapDAO {
 
-    public boolean insertScrap(ScrapDTO scrap) {
+    public boolean createScrap(ScrapDTO scrap) {
         String sql = "INSERT INTO Scrap (recruitment_id, student_id) VALUES (?, ?)";
         boolean isSuccess = false;
 
@@ -78,7 +78,7 @@ public class ScrapDAO {
     // [내 스크랩 조회] 학번으로 조회
     public void getScrapsByStudent(String studentId) {
         String sql =
-            "SELECT recruitment_title, org_name, " +
+            "SELECT scrap_id, recruitment_title, org_name, " +
             "       start_date, end_date, recruit_status, created_at " +
             "FROM vw_student_scrap " +
             "WHERE student_id = ?";
@@ -96,6 +96,7 @@ public class ScrapDAO {
                 boolean hasResult = false;
                 while (rs.next()) {
                     hasResult = true;
+                    int id = rs.getInt("scrap_id");
                     String    title         = rs.getString("recruitment_title");
                     String    orgName       = rs.getString("org_name");
                     Date      startDate     = rs.getDate("start_date");
@@ -103,6 +104,7 @@ public class ScrapDAO {
                     String    recruitStatus = rs.getString("recruit_status");
                     Timestamp createdAt     = rs.getTimestamp("created_at");
                     System.out.println("--------------------------------------------");
+                    System.out.println("▶ 스크랩 ID   : " + id);
                     System.out.println("▶ 동아리명   : " + orgName);
                     System.out.println("▶ 공고 제목  : " + title);
                     System.out.println("▶ 모집 기간  : " + startDate + " ~ " + endDate);

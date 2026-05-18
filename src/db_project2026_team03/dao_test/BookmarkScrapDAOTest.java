@@ -35,7 +35,7 @@ public class BookmarkScrapDAOTest {
             BookmarkDTO bookmark = new BookmarkDTO();
             bookmark.setStudentId(data[0]);
             bookmark.setOrgId(Integer.parseInt(data[1]));
-            boolean result = bookmarkDAO.insertBookmark(bookmark);
+            boolean result = bookmarkDAO.createBookmark(bookmark);
             //System.out.println("▶ 학번 " + data[0] + " | 동아리 ID " + data[1] + " 결과: " + (result ? "성공" : "실패"));
         }
 
@@ -44,7 +44,7 @@ public class BookmarkScrapDAOTest {
         BookmarkDTO dupBookmark = new BookmarkDTO();
         dupBookmark.setStudentId("2021000001");
         dupBookmark.setOrgId(1);
-        boolean dupResult = bookmarkDAO.insertBookmark(dupBookmark);
+        boolean dupResult = bookmarkDAO.createBookmark(dupBookmark);
         System.out.println("▶ 중복 추가 결과: " + (dupResult ? "성공" : "실패"));
 
         System.out.println("\n========== [3] getBookmarksByStudent 테스트 - 즐겨찾기 있는 학번 ==========");
@@ -85,7 +85,7 @@ public class BookmarkScrapDAOTest {
             ScrapDTO scrap = new ScrapDTO();
             scrap.setStudentId(data[0]);
             scrap.setRecruitmentId(Integer.parseInt(data[1]));
-            boolean result = scrapDAO.insertScrap(scrap);
+            boolean result = scrapDAO.createScrap(scrap);
             //System.out.println("▶ 학번 " + data[0] + " | 공고 ID " + data[1] + " 결과: " + (result ? "성공" : "실패"));
         }
 
@@ -94,7 +94,7 @@ public class BookmarkScrapDAOTest {
         ScrapDTO dupScrap = new ScrapDTO();
         dupScrap.setStudentId("2021000001");
         dupScrap.setRecruitmentId(1);
-        boolean dupScrapResult = scrapDAO.insertScrap(dupScrap);
+        boolean dupScrapResult = scrapDAO.createScrap(dupScrap);
         System.out.println("▶ 중복 추가 결과: " + (dupScrapResult ? "성공" : "실패"));
 
         System.out.println("\n========== [10] getScrapsByStudent 테스트 - 스크랩 있는 학번 ==========");

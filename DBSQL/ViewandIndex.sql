@@ -15,11 +15,10 @@ SELECT
     c.category_name, -- 모집 동아리 장르 유형
     r.recruitment_id, -- 모집 공고 식별 id
     r.title AS recruitment_title, -- 모집 공고의 제목
-    r.qualification, -- 모집 공고의 자격 요건
+    r.qualification,  -- 모집 공고에 명시된 지원 자격 요건
     r.start_date, -- 모집이 시작되는 날짜와 시간
     r.end_date, -- 모집이 마감되는 날짜와 시간
     r.interview_required, -- 면접 진행 여부 (True: 면접 있음, False: 서류만)
-    r.qualifications, -- 모집 공고에 명시된 지원 자격 요건
     -- 모집 진행 상태 (예: 모집전, 모집중, 모집마감)
     CASE
         WHEN NOW() < r.start_date                      THEN '모집대기'

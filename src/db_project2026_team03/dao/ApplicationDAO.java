@@ -126,4 +126,90 @@ public class ApplicationDAO {
         }
     }
     
+ // [지원자 조회] 운영진 학번으로 본인 동아리 지원자 목록 + 자기소개서 열람
+ // Organization.president_id = 운영진 학번 조건으로 동아리 특정
+ public void getApplicationsByOrg(String presidentId) {
+     String sql =
+         "SELECT a.application_id, " +
+         "       s.student_id, s.name, s.university, s.major, " +
+         "       r.title AS recruitment_title, " +
+         "       a.self_intro, a.pass_status " +
+         "FROM Application a " +
+         "JOIN Student s      ON a.student_id     = s.student_id " +
+         "JOIN Recruitment r  ON a.recruitment_id = r.recruitment_id " +
+         "JOIN Organization o ON r.org_id         = o.org_id " +
+         "WHERE o.president_id = ?";
+
+     try (Connection conn = DBConnection.getConnection();
+          PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+         pstmt.setString(1, presidentId);
+
+         try (ResultSet rs = pstmt.executeQuery()) {
+
+             System.out.println("============================================");
+             System.out.println("[ 우리 동아리 지원자 목록 ]");
+
+             boolean hasResult = false;
+             while (rs.next()) {
+                 hasResult = true;
+                 System.out.println("--------------------------------------------");
+                 System.out.println("▶ 지원서 ID : " + rs.getInt("application_id"));
+                 System.out.println("▶ 학번      : " + rs.getString("student_id"));
+                 System.out.println("▶ 이름      : " + rs.getString("name"));
+                 System.out.println("▶ 대학교    : " + rs.getString("university"));
+                 System.out.println("▶ 전공      : " + rs.getString("major"));
+                 System.out.println("▶ 지원 공고 : " + rs.getString("recruitment_title"));
+                 System.out.println("▶ 자기소개서: " + rs.getString("self_intro"));
+                 System.out.println("▶ 심사 상태 : " + rs.getString("pass_status"));
+             }
+
+             if (!hasResult) {
+                 System.out.println("--------------------------------------------");
+                 System.out.println(" 지원자가 없습니다.");
+             }
+             System.out.println("============================================");
+         }
+
+     } catch (SQLException e) {
+         System.out.println("xx 지원자 조회 실패: " + e.getMessage());
+         e.printStackTrace();
+     }
+ }
+
+ // [합격/불합격 처리] 트랜잭션으로 pass_status 업데이트
+ public boolean updatePassStatus(int applicationId, String status) {
+     String sql = "UPDATE Application SET pass_status = ? WHERE application_id = ?";
+
+     try (Connection conn = DBConnection.getConnection()) {
+         conn.setAutoCommit(false); // 트랜잭션 시작
+
+         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             pstmt.setString(1, status);
+             pstmt.setInt(2, applicationId);
+
+             int rowsAffected = pstmt.executeUpdate();
+
+             if (rowsAffected == 0) {
+                 conn.rollback();
+                 System.out.println("xx 지원서를 찾을 수 없습니다. applicationId: " + applicationId);
+                 return false;
+             }
+
+             conn.commit(); // 성공 시 커밋
+             System.out.println("✅ 처리 완료 | 지원서 ID: " + applicationId + " → " + status);
+             return true;
+
+         } catch (SQLException e) {
+             conn.rollback(); // 쿼리 실패 시 롤백
+             System.out.println("xx 상태 업데이트 실패, 롤백 처리: " + e.getMessage());
+             return false;
+         }
+
+     } catch (SQLException e) {
+         System.out.println("xx DB 연결 실패: " + e.getMessage());
+         return false;
+     }
+ }
+    
 }

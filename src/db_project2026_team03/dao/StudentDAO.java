@@ -57,4 +57,19 @@ public class StudentDAO {
         }
         return list;
     }
+    public boolean checkStudentExist(String studentId) {
+String sql = "SELECT 1 FROM Student WHERE student_id = ?";
+        
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, studentId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                return rs.next();//레코드가 한 행이라도 존재하면 true,없음 false.
+            }
+        } catch (SQLException e) {
+            System.out.println("xx 학생 확인 실패: " + e.getMessage());
+        }
+        return false;
+	}
 }

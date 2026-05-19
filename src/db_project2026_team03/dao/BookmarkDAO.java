@@ -28,7 +28,7 @@ public class BookmarkDAO {
 
                if (rowsAffected > 0) {
                    isSuccess = true;
-                  String selectSql = "SELECT title FROM Recruitment WHERE recruitment_id = ?";
+                  String selectSql = "SELECT org_name FROM Organization WHERE org_id = ?";
                    try (PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
                        selectStmt.setInt(1, bookmark.getOrgId());
                        try (ResultSet rs = selectStmt.executeQuery()) {
@@ -44,7 +44,7 @@ public class BookmarkDAO {
                if (e.getErrorCode() == 1062) {
                    System.out.println("⚠️  이미 즐겨찾기한 동아리입니다.");
                } else {
-                   System.out.println("xx Scrap 조회 실패: " + e.getMessage());
+                   System.out.println("xx Bookmark 조회 실패: " + e.getMessage());
                    e.printStackTrace();
                }
            }

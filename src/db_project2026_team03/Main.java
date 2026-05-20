@@ -231,6 +231,7 @@ public class Main {
             System.out.println("\n================= [운영진 메뉴] =================");
             System.out.println("1. 신규 모집 공고 등록         2. 등록된 모집 공고 수정");
             System.out.println("3. 모집 공고 삭제             4. 모집 공고 마감 처리");
+            System.out.println("5. 동아리/학회 비활성화");
             System.out.println("0. 로그아웃");
             System.out.println("=================================================");
             System.out.print("▶ 원하시는 관리 작업 번호를 선택하세요: ");
@@ -261,7 +262,6 @@ public class Main {
                             System.out.println("성공적으로 신규 공고가 시스템에 등록되었습니다.");
                         }
                         break;
-
                     case 2:
                         System.out.println("\n--- 모집 공고 내용 수정 ---");
                         System.out.print("▶ 수정할 공고의 번호를 입력하세요: ");
@@ -304,7 +304,7 @@ public class Main {
                     case 3:
                         System.out.println("\n--- 모집 공고 파기/삭제 ---");
                         
-                        System.out.print("▶동아리 번호 입력: ");
+                        System.out.print("▶ 동아리 번호 입력: ");
                         int currentOrgId = Integer.parseInt(sc.nextLine().trim());
                         
                         System.out.print("▶ 삭제할 공고 번호를 입력하세요: ");
@@ -333,7 +333,22 @@ public class Main {
                             System.out.println("해당 공고의 모집이 조기 마감 처리되었습니다.");
                         }
                         break;
-
+                        
+                    case 5:
+                    	System.out.println("\n--- 동아리/학회 비활성화 ---");
+                    	System.out.print("▶ 비활성화할 단체 번호를 입력하세요: ");
+                    	int deactivateId = Integer.parseInt(sc.nextLine().trim());
+                    	
+                    	boolean isDeactivate = orgDao.deactivateOrganization(deactivateId,loginedStudentId);
+                    	System.out.println("\n==================================");
+                        if (isDeactivate) {
+                            System.out.println("[안내] 단체가 성공적으로 비활성화되었습니다.");
+                        } else {
+                            System.out.println("[오류] 비활성화 처리에 실패했습니다. (입력 정보를 다시 확인해주세요)");
+                        }
+                        System.out.println("==================================");
+                    	break;
+                    	
                     case 0:
                         System.out.println("운영진 메뉴를 종료하고 로그아웃합니다.");
                         isRunning = false;

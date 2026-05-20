@@ -2,58 +2,74 @@ package db_project2026_team03.dao_test;
 
 import db_project2026_team03.dao.OrganizationDAO;
 
-// 🚨 본인의 실제 DAO 클래스가 있는 패키지 경로를 임포트하세요.
+// 실제 DAO 클래스가 있는 패키지 경로를 임포트하세요.
 // 예: import db_project2026_team03.dao.OrganizationDAO;
 
 public class OrganizationTransactionTest {
 
     public static void main(String[] args) {
+        // 1. DAO 객체 생성
         OrganizationDAO orgDao = new OrganizationDAO();
 
         System.out.println("=========================================");
-        System.out.println("[트랜잭션 최종 검증 테스트 시작]");
+        System.out.println(" [트랜잭션 권한 검증 테스트 시작]");
         System.out.println("=========================================");
 
-        int existingOrgId = 1;       // 실제 존재하는 동아리 ID
-        int nonExistentOrgId = 9999; // 존재하지 않는 가짜 ID
+        // 테스트 데이터 설정 (실제 DB에 있는 데이터 상태에 맞춰 수정해 주세요)
+        int existingOrgId = 1;         // 실제 존재하는 동아리 ID
+        String realManagerId = "20260001"; // 위 동아리의 실제 대장 학번 (president_id)
+        String wrongStudentId = "20231111"; // 권한이 없는 일반 학생 학번
+        int nonExistentOrgId = 9999;   // 존재하지 않는 가짜 동아리 ID
 
         // -----------------------------------------------------------------
-        // 케이스 ① : 존재하지 않는 동아리 테스트 (방어 로직 확인)
+        // 케이스 1 : 타인의 동아리를 비활성화하려고 시도할 때 (권한 검증)
         // -----------------------------------------------------------------
-        System.out.println("\n[케이스 1] 존재하지 않는 동아리 ID (" + nonExistentOrgId + ") 처리 시도");
-        boolean result1 = orgDao.deactivateOrganization(nonExistentOrgId);
-        System.out.println("➡️ 결과: " + (result1 ? "❌ 실패 (true 반환됨)" : "✅ 성공 (정상적으로 false 반환됨)"));
-
-
-        // -----------------------------------------------------------------
-        // 케이스 ② : 정상 작동 테스트 (핵심 기능 확인)
-        // -----------------------------------------------------------------
-        System.out.println("\n[케이스 2] 존재하는 동아리 ID (" + existingOrgId + ") 비활성화 및 북마크 삭제 시도");
-        boolean result2 = orgDao.deactivateOrganization(existingOrgId);
-        System.out.println("➡️ 결과: " + (result2 ? "✅ 성공 (true 반환됨)" : "❌ 실패 (false 반환됨)"));
-        if (result2) {
-            System.out.println("📌 [DB 직접 확인 필수]");
-            System.out.println("   - Organization 테이블: org_id=" + existingOrgId + "의 상태가 false로 바뀌었나요?");
-            System.out.println("   - Bookmark 테이블: org_id=" + existingOrgId + "인 데이터가 싹 지워졌나요?");
+        System.out.println("\n[케이스 1] 다른 사람의 동아리 ID (" + existingOrgId + ") 처리 시도");
+        System.out.println(" 입력 학번: " + wrongStudentId + " (일반 학생)");
+        
+        boolean result1 = orgDao.deactivateOrganization(existingOrgId, wrongStudentId);
+        
+        if (!result1) {
+            System.out.println(" ➡️ 결과: 성공 (권한이 없으므로 정상적으로 차단됨)");
+        } else {
+            System.out.println(" ➡️ 결과: 실패 (권한이 없는데 true가 반환됨)");
         }
 
 
         // -----------------------------------------------------------------
-        // 케이스 ③ : 🚨 롤백 테스트 (가장 중요! 트랜잭션 안전성 확인)
+        // 케이스 2 : 존재하지 않는 동아리 ID를 입력했을 때 (존재 여부 검증)
         // -----------------------------------------------------------------
-        System.out.println("\n[케이스 3] 롤백 테스트 (일부러 에러를 내서 확인하는 단계)");
-        System.out.println("⚠️ 테스트 방법: DAO 코드에서 deleteBookmarkSql의 테이블명을 틀리게 고친 후 실행해보세요.");
+        System.out.println("\n[케이스 2] 존재하지 않는 동아리 ID (" + nonExistentOrgId + ") 처리 시도");
+        System.out.println(" 입력 학번: " + realManagerId);
         
-        // 다시 다른 존재하는 동아리 ID(예: 2번)로 바꾼 뒤 에러를 유발해봅니다.
-        int rollbackTestOrgId = 2; 
-        boolean result3 = orgDao.deactivateOrganization(rollbackTestOrgId);
+        boolean result2 = orgDao.deactivateOrganization(nonExistentOrgId, realManagerId);
         
-        System.out.println("➡️ 결과: " + (result3 ? "❌ 실패 (에러가 났는데 true가 나옴)" : "✅ 성공 (에러를 캐치하여 false 반환됨)"));
-        System.out.println("📌 [DB 직접 확인 필수]");
-        System.out.println("   - 에러가 터졌으므로, DB의 org_id=" + rollbackTestOrgId + "인 동아리는 여전히 'true' 상태로 남아있어야 안전한 롤백이 성공한 것입니다!");
+        if (!result2) {
+            System.out.println(" ➡️ 결과: 성공 (존재하지 않는 동아리이므로 0번 단계에서 정상적으로 false를 반환함)");
+        } else {
+            System.out.println(" ➡️ 결과: 실패 (존재하지 않는 동아리인데 true가 반환됨)");
+        }
+
+
+        // -----------------------------------------------------------------
+        // 케이스 3 : 진짜 대장 학번으로 정상 비활성화 처리를 할 때 (최종 연동 성공)
+        // -----------------------------------------------------------------
+        System.out.println("\n[케이스 3] 본인의 동아리 ID (" + existingOrgId + ") 비활성화 시도");
+        System.out.println(" 입력 학번: " + realManagerId + " (실제 운영진)");
+        
+        boolean result3 = orgDao.deactivateOrganization(existingOrgId, realManagerId);
+
+        if (result3) {
+            System.out.println(" ➡️ 결과: 성공 (권한 및 데이터가 확인되어 트랜잭션 정상 커밋됨)");
+            System.out.println("  실행 후 확인: DB를 조회해서 아래 항목을 직접 검증해보세요!");
+            System.out.println("   1. Organization 테이블에서 org_id=" + existingOrgId + "의 org_status가 false로 바뀌었는가?");
+            System.out.println("   2. Bookmark 테이블에서 org_id=" + existingOrgId + "인 데이터들이 싹 지워졌는가?");
+        } else {
+            System.out.println(" ➡️ 결과: 실패 (정상적인 요청이나 메소드가 false를 반환함. 로그를 확인하세요.)");
+        }
 
         System.out.println("\n=========================================");
-        System.out.println("[트랜잭션 테스트 종료]");
+        System.out.println(" [트랜잭션 테스트 종료]");
         System.out.println("=========================================");
     }
 }

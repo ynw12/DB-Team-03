@@ -126,4 +126,32 @@ public class ApplicationDAO {
         }
     }
     
+ // [합격/불합격 처리] pass_status 업데이트
+    public boolean updatePassStatus(int applicationId, String status) {
+        String sql = "UPDATE Application SET pass_status = ? WHERE application_id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, status);
+            pstmt.setInt(2, applicationId);
+
+            int rowsAffected = pstmt.executeUpdate();
+
+            if (rowsAffected == 0) {
+                System.out.println("xx 지원서를 찾을 수 없습니다. applicationId: " + applicationId);
+                return false;
+            }
+
+            System.out.println("✅ 처리 완료 | 지원서 ID: " + applicationId + " → " + status);
+            return true;
+
+        } catch (SQLException e) {
+            System.out.println("xx 상태 업데이트 실패: " + e.getMessage());
+            return false;
+        }
+        
+        
+    }
+    
 }

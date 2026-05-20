@@ -11,7 +11,8 @@ import db_project2026_team03.DBConnection;
 import db_project2026_team03.dto.OrganizationDTO;
 
 public class OrganizationDAO {
-
+	
+	// [DAO 기본 세팅] Organization Insert
     public boolean insertOrganization(OrganizationDTO org) {
         String sql = "INSERT INTO Organization (org_name, org_type_id, category_id, description, short_description, president_id, org_status) VALUES (?, ?, ?, ?, ?, ?, ?)";
         boolean isSuccess = false;
@@ -37,6 +38,7 @@ public class OrganizationDAO {
         return isSuccess;
     }
 
+    // [DAO 기본 세팅] Organization 조회
     public List<OrganizationDTO> selectAllOrganizations() {
         String sql = "SELECT * FROM Organization";
         List<OrganizationDTO> list = new ArrayList<>();
@@ -180,6 +182,8 @@ public class OrganizationDAO {
             System.out.println("xx 동아리 상세 조회 실패: " + e.getMessage());
         }
     }
+    
+    // 학생의 운영진 여부 조회
     public boolean checkIsAdmin(String studentId) {
         String sql = "SELECT 1 FROM Organization WHERE president_id = ? LIMIT 1";
         
@@ -217,6 +221,70 @@ public class OrganizationDAO {
         }
 
         return -1; // 해당 학생이 운영진이 아닌 경우
+    }
+    
+    // [트랜잭션] 동아리 비활성화 - 북마크 삭제
+    public boolean deactivateOrganization(int orgId) {
+        String deactivateSql = "UPDATE Organization SET org_status = false WHERE org_id = ?";
+        String deleteBookmarkSql = "DELETE FROM Bookmark WHERE org_id = ?";
+        
+        Connection conn = null; 
+
+        try {
+            conn = DBConnection.getConnection();
+            conn.setAutoCommit(false);
+
+            // 1. 동아리 비활성화 UPDATE 
+            try (PreparedStatement pstmt = conn.prepareStatement(deactivateSql)) {
+                pstmt.setInt(1, orgId);
+                int rowsAffected = pstmt.executeUpdate();
+                
+                // 해당 동아리 X => 롤백 
+                if (rowsAffected == 0) {
+                    System.out.println("xx 존재하지 않는 동아리입니다.");
+                    conn.rollback(); 
+                    return false;
+                }
+            }
+
+            // 2. 해당 동아리 북마크 일괄 삭제
+            try (PreparedStatement pstmt = conn.prepareStatement(deleteBookmarkSql)) {
+                pstmt.setInt(1, orgId);
+                int deleted = pstmt.executeUpdate();
+                // 북마크 n건 삭제 출력 (삭제 개수 출력)
+                System.out.println("✅ 북마크 " + deleted + "건 삭제");
+            }
+
+            conn.commit(); // 모든 작업 성공 시 커밋
+            System.out.println("✅ 동아리 비활성화 완료 | org_id: " + orgId);
+            return true;
+
+        } 
+        // 작업(update,delete) 성공 했어도 db 꺼지거나 sql 에러 등 예외 사항 발생 시 
+        catch (SQLException e) {
+            System.out.println("xx 처리 실패, 롤백 진행: " + e.getMessage());
+            
+            // 에러 발생 시 안전하게 롤백 처리
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    System.out.println("xx 롤백 중 추가 에러 발생: " + ex.getMessage());
+                }
+            }
+            return false;
+            
+        } finally {
+            // Connection 자원 반납 (연희님께서 얘기한 커넥션 해지 명시)
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) {
+                    System.out.println("xx 커넥션 닫기 실패: " + e.getMessage());
+                }
+            }
+        }
     }
 }
 

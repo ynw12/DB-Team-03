@@ -253,10 +253,39 @@ public class RecruitmentDAO {
         }
     }
 
-    // [공고 삭제] 트랜잭션으로 처리
+    // [나은님 트랜잭션 직전 deleteRecruitment 메소드]
+    public boolean deleteRecruitment(int recruitmentId, int currentOrgId) {
+
+        String sql = "DELETE FROM Recruitment "
+                   + "WHERE recruitment_id = ? "
+                   + "AND org_id = ?";
+        boolean isSuccess = false;
+        
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, recruitmentId);
+            pstmt.setInt(2, currentOrgId);
+
+            int rowsAffected = pstmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                isSuccess = true;
+                System.out.println("Recruitment 삭제 성공");
+            } else {
+                System.out.println("해당 공고가 존재하지 않거나 삭제 권한이 없습니다.");
+            }
+
+        } catch (SQLException e) {
+            System.out.println("xx Recruitment 삭제 실패: " + e.getMessage());
+        }
+        return isSuccess;
+    }
+
+    // [나은님 트랜잭션 메소드 | 공고 삭제] 트랜잭션으로 처리
     // Recruitment 삭제 시 Application, Scrap은 ON DELETE CASCADE로 자동 삭제
     // 트랜잭션으로 실패 시 전체 롤백 보장
-    public boolean deleteRecruitment(int recruitmentId, int currentOrgId) {
+    /*public boolean deleteRecruitment(int recruitmentId, int currentOrgId) {
+
         String sql = "DELETE FROM Recruitment "
                    + "WHERE recruitment_id = ? "
                    + "AND org_id = ?";
@@ -275,7 +304,6 @@ public class RecruitmentDAO {
                     System.out.println("xx 해당 공고가 존재하지 않거나 삭제 권한이 없습니다.");
                     return false;
                 }
-
                 conn.commit(); // 성공 시 커밋 — Application, Scrap CASCADE 삭제도 함께 확정
                 System.out.println("✅ 공고 삭제 완료 | 관련 지원서 및 스크랩도 함께 삭제되었습니다.");
                 return true;
@@ -290,8 +318,7 @@ public class RecruitmentDAO {
             System.out.println("xx DB 연결 실패: " + e.getMessage());
             return false;
         }
-    }
-
+    }*/
     public RecruitmentDTO getRecruitmentById(int recruitmentId) {
         String sql = "SELECT * FROM Recruitment WHERE recruitment_id = ?";
 

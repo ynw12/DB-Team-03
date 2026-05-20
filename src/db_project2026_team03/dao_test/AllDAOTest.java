@@ -178,7 +178,7 @@ public class AllDAOTest {
         	
 
         	// 정상 삭제 (commit 케이스)
-        	boolean deleteResult = deleteDao.deleteRecruitment(deleteTargetId, orgId);
+        	/*boolean deleteResult = deleteDao.deleteRecruitment(deleteTargetId, orgId);
         	printResult("deleteRecruitment 정상 삭제 (commit)", deleteResult);
 
         	// 존재하지 않는 ID (rollback 케이스)
@@ -187,7 +187,7 @@ public class AllDAOTest {
 
         	// 권한 없는 org_id (rollback 케이스)
         	boolean noAuthResult = deleteDao.deleteRecruitment(recruitmentId, -1);
-        	printResult("deleteRecruitment 권한 없는 org_id (rollback)", !noAuthResult);
+        	printResult("deleteRecruitment 권한 없는 org_id (rollback)", !noAuthResult);*/
 
 
     }

@@ -58,7 +58,7 @@ public class StudentDAO {
         return list;
     }
     public boolean checkStudentExist(String studentId) {
-String sql = "SELECT 1 FROM Student WHERE student_id = ?";
+    	String sql = "SELECT 1 FROM Student WHERE student_id = ?";
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -72,4 +72,32 @@ String sql = "SELECT 1 FROM Student WHERE student_id = ?";
         }
         return false;
 	}
+    
+    // [조회용] 학생 ID -> 학생 이름 반환 메소드
+    public static String getStudentName(int studentId) {
+        String nameSql = "SELECT name FROM Student WHERE student_id = ?";
+        String studentName = null;
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(nameSql)) {
+
+            pstmt.setInt(1, studentId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    studentName = rs.getString("name");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("xx 학생 조회 실패: " + e.getMessage());
+            return null;
+        }
+
+        if (studentName == null) {
+            System.out.println("xx 존재하지 않는 학생입니다.");
+            return null;
+        }
+
+        return studentName;
+    }
 }

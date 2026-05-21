@@ -176,7 +176,7 @@ public class ApplicationDAO {
             try (ResultSet rs = pstmt.executeQuery()) {
 
                 System.out.println("============================================");
-                System.out.println("[ 우리 동아리 지원자 목록 ]");
+                System.out.println("[ 동아리 지원자 목록 ]");
 
                 boolean hasResult = false;
                 while (rs.next()) {

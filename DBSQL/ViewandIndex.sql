@@ -48,6 +48,7 @@ SELECT
     o.org_name, -- 즐겨찾기한 동아리 이름
     ot.type_name AS org_type, -- org_type: 즐겨찾기한 동아리 단체 유형
     c.category_name, -- 즐겨찾기한 동아리 장르
+    b.bookmark_id, -- 즐켜찾기 id
     b.created_at -- 즐겨찾기한 날짜
 FROM Bookmark b
     JOIN Student s ON b.student_id = s.student_id        -- 즐겨찾기 → 학생
@@ -71,6 +72,7 @@ SELECT
         WHEN NOW() BETWEEN r.start_date AND r.end_date THEN '모집중'
         ELSE '모집마감'
     END AS recruit_status, -- 스크랩한 공고 실시간 모집 상태
+    sc.scrap_id, -- 스크랩 id
     sc.created_at -- 스크랩한 날짜
 FROM Scrap sc
     JOIN Student s      ON sc.student_id     = s.student_id       -- 스크랩 → 학생

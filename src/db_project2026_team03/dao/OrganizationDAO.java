@@ -13,7 +13,7 @@ import db_project2026_team03.dto.OrganizationDTO;
 public class OrganizationDAO {
 
     public boolean insertOrganization(OrganizationDTO org) {
-        String sql = "INSERT INTO Organization (org_name, org_type_id, category_id, description, short_description, president_id, org_status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Organization (org_name, org_type_id, category_id, description, short_description, president_id, org_status) VALUES (?, ?, ?, ?, ?, ?, ?)";
         boolean isSuccess = false;
 
         try (Connection conn = DBConnection.getConnection();

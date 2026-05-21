@@ -35,7 +35,7 @@ public class RecruitmentDAO {
         return isSuccess;
     }
 
-// 전체 모집 공고 데이터 조회 (DTO 반환용)
+    // 전체 모집 공고 데이터 조회 (DTO 반환용)
     public List<RecruitmentDTO> getAllRecruitments() {
         String sql = "SELECT * FROM vw_all_recruitments";
 
@@ -49,12 +49,12 @@ public class RecruitmentDAO {
                 RecruitmentDTO dto = new RecruitmentDTO();
                 dto.setRecruitmentId(rs.getInt("recruitment_id"));
                 dto.setOrgId(rs.getInt("org_id"));
-                dto.setTitle(rs.getString("recruitment_title")); 
+                dto.setTitle(rs.getString("recruitment_title"));
                 dto.setQualification(rs.getString("qualification"));
                 dto.setStartDate(rs.getTimestamp("start_date"));
                 dto.setEndDate(rs.getTimestamp("end_date"));
                 dto.setInterviewRequired(rs.getBoolean("interview_required"));
-                dto.setRecruitStatus(rs.getString("recruit_status")); 
+                dto.setRecruitStatus(rs.getString("recruit_status"));
                 list.add(dto);
             }
 
@@ -121,7 +121,7 @@ public class RecruitmentDAO {
                     hasResult = true;
                     int id = rs.getInt("recruitment_id");
                     String orgName = rs.getString("org_name");
-                    String title = rs.getString("recruitment_title"); 
+                    String title = rs.getString("recruitment_title");
                     java.sql.Date endDate = rs.getDate("end_date");
 
                     System.out.printf("%d | %s | %s | %s\n", id, orgName, title, endDate.toString());
@@ -137,7 +137,7 @@ public class RecruitmentDAO {
         }
     }
 
-     // 특정 모집 공고 상세 조회
+    // 특정 모집 공고 상세 조회
     public void printRecruitmentDetail(int recruitmentId) {
         String sql = "SELECT v.*, r.qualification, DATEDIFF(v.end_date, NOW()) as d_day " +
                      "FROM vw_active_recruitments v " +
@@ -145,7 +145,7 @@ public class RecruitmentDAO {
                      "WHERE v.recruitment_id = ?";
 
         try (Connection conn = DBConnection.getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, recruitmentId);
 
@@ -153,12 +153,12 @@ public class RecruitmentDAO {
                 if (rs.next()) {
                     String orgName = rs.getString("org_name");
                     String shortDesc = rs.getString("short_description");
-                    String title = rs.getString("recruitment_title");      
+                    String title = rs.getString("recruitment_title");
                     String qualification = rs.getString("qualification");
                     boolean interview = rs.getBoolean("interview_required");
                     java.sql.Date start = rs.getDate("start_date");
                     java.sql.Date end = rs.getDate("end_date");
-                    
+
                     int dDay = rs.getInt("d_day");
                     String dDayText = (dDay == 0) ? "D-Day (오늘 마감)" : "D-" + dDay;
 
@@ -187,7 +187,6 @@ public class RecruitmentDAO {
     }
 
     public boolean updateRecruitment(RecruitmentDTO recruitment) {
-
         String sql = "UPDATE Recruitment "
                    + "SET title=?, qualification=?, start_date=?, end_date=?, "
                    + "interview_required=? "
@@ -206,15 +205,11 @@ public class RecruitmentDAO {
             pstmt.setInt(6, recruitment.getRecruitmentId());
 
             int rowsAffected = pstmt.executeUpdate();
-
-            if (rowsAffected > 0) {
-                isSuccess = true;
-            }
+            if (rowsAffected > 0) isSuccess = true;
 
         } catch (SQLException e) {
             System.out.println("xx Recruitment 수정 실패: " + e.getMessage());
         }
-
         return isSuccess;
     }
 
@@ -236,7 +231,6 @@ public class RecruitmentDAO {
                 System.out.println("------------------------------------------------");
 
                 boolean hasData = false;
-
                 while (rs.next()) {
                     hasData = true;
                     System.out.printf(
@@ -265,12 +259,10 @@ public class RecruitmentDAO {
         String sql = "DELETE FROM Recruitment "
                    + "WHERE recruitment_id = ? "
                    + "AND org_id = ?";
-
         boolean isSuccess = false;
-
+        
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
             pstmt.setInt(1, recruitmentId);
             pstmt.setInt(2, currentOrgId);
 
@@ -286,17 +278,55 @@ public class RecruitmentDAO {
         } catch (SQLException e) {
             System.out.println("xx Recruitment 삭제 실패: " + e.getMessage());
         }
-
         return isSuccess;
     }
+
+    // [나은님 트랜잭션 메소드 | 공고 삭제] 트랜잭션으로 처리
+    // Recruitment 삭제 시 Application, Scrap은 ON DELETE CASCADE로 자동 삭제
+    // 트랜잭션으로 실패 시 전체 롤백 보장
+    /*public boolean deleteRecruitment(int recruitmentId, int currentOrgId) {
+
+        String sql = "DELETE FROM Recruitment "
+                   + "WHERE recruitment_id = ? "
+                   + "AND org_id = ?";
+
+        try (Connection conn = DBConnection.getConnection()) {
+            conn.setAutoCommit(false); // 트랜잭션 시작
+
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, recruitmentId);
+                pstmt.setInt(2, currentOrgId);
+
+                int rowsAffected = pstmt.executeUpdate();
+
+                if (rowsAffected == 0) {
+                    conn.rollback();
+                    System.out.println("xx 해당 공고가 존재하지 않거나 삭제 권한이 없습니다.");
+                    return false;
+                }
+                conn.commit(); // 성공 시 커밋 — Application, Scrap CASCADE 삭제도 함께 확정
+                System.out.println("✅ 공고 삭제 완료 | 관련 지원서 및 스크랩도 함께 삭제되었습니다.");
+                return true;
+
+            } catch (SQLException e) {
+                conn.rollback(); // 실패 시 롤백
+                System.out.println("xx 공고 삭제 실패, 롤백 처리: " + e.getMessage());
+                return false;
+            }
+
+        } catch (SQLException e) {
+            System.out.println("xx DB 연결 실패: " + e.getMessage());
+            return false;
+        }
+    }*/
     public RecruitmentDTO getRecruitmentById(int recruitmentId) {
         String sql = "SELECT * FROM Recruitment WHERE recruitment_id = ?";
-        
+
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            
+
             pstmt.setInt(1, recruitmentId);
-            
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
                     RecruitmentDTO dto = new RecruitmentDTO();
@@ -315,6 +345,4 @@ public class RecruitmentDAO {
         }
         return null;
     }
-
-
 }

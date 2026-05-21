@@ -152,12 +152,43 @@ public class AllDAOTest {
         dto.setEndDate(Timestamp.valueOf(LocalDateTime.now().plusDays(7)));
         dto.setInterviewRequired(true);
 
-        boolean inserted = dao.insertRecruitment(dto);
-        printResult("Recruitment INSERT", inserted);
-
         recruitmentId = findInt("SELECT recruitment_id FROM Recruitment WHERE title = ?", title);
         printResult("Recruitment SELECT / ID 확인", recruitmentId > 0);
         System.out.println("recruitmentId = " + recruitmentId);
+        
+        RecruitmentDAO deleteDao = new RecruitmentDAO();
+        
+        RecruitmentDTO deleteTarget = new RecruitmentDTO();
+        deleteTarget.setOrgId(orgId);
+        deleteTarget.setTitle(PREFIX + " 삭제테스트공고");
+        deleteTarget.setQualification("삭제 테스트용");
+        deleteTarget.setStartDate(Timestamp.valueOf(LocalDateTime.now()));
+        deleteTarget.setEndDate(Timestamp.valueOf(LocalDateTime.now().plusDays(1)));
+        deleteTarget.setInterviewRequired(false);
+        deleteDao.insertRecruitment(deleteTarget);
+        
+        
+        boolean inserted = dao.insertRecruitment(dto);
+        printResult("Recruitment INSERT", inserted);
+        
+        int deleteTargetId = findInt("SELECT recruitment_id FROM Recruitment WHERE title = ?",
+        	    PREFIX + " 삭제테스트공고");
+
+        	System.out.println("\n--- deleteRecruitment 트랜잭션 테스트 ---");
+        	
+
+        	// 정상 삭제 (commit 케이스)
+        	/*boolean deleteResult = deleteDao.deleteRecruitment(deleteTargetId, orgId);
+        	printResult("deleteRecruitment 정상 삭제 (commit)", deleteResult);
+
+        	// 존재하지 않는 ID (rollback 케이스)
+        	boolean rollbackResult = deleteDao.deleteRecruitment(-1, orgId);
+        	printResult("deleteRecruitment 존재하지 않는 ID (rollback)", !rollbackResult);
+
+        	// 권한 없는 org_id (rollback 케이스)
+        	boolean noAuthResult = deleteDao.deleteRecruitment(recruitmentId, -1);
+        	printResult("deleteRecruitment 권한 없는 org_id (rollback)", !noAuthResult);*/
+
 
     }
 

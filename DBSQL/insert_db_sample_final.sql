@@ -159,6 +159,11 @@ INSERT INTO Recruitment (recruitment_id, org_id, title, qualification, start_dat
     (29, 29, '2026-1 로호 신입회원 모집', '이화여대 재학생', '2026-05-06 00:00:00', '2026-05-26 00:00:00', TRUE),
     (30, 30, '2026-1 Beings 신입회원 모집', '관심 분야 경험자 우대', '2026-04-07 00:00:00', '2026-07-14 00:00:00', FALSE);
 
+INSERT INTO Application (application_id, recruitment_id, student_id, self_intro, pass_status) VALUES
+    (31, 1, '2671021', 'ECC 동아리에 꼭 들어가고 싶습니다!', '대기'),
+    (32, 1, '2671022', '열심히 코딩하겠습니다!', '대기'),
+    (33, 1, '2671023', '잘 부탁드립니다.', '대기');
+
 ALTER TABLE Recruitment AUTO_INCREMENT = 31;
 
 INSERT INTO Application (application_id, recruitment_id, student_id, self_intro, pass_status) VALUES

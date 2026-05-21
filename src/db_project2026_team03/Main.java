@@ -226,23 +226,31 @@ public class Main {
     }
 
     private static void runAdminMenu() {
+        //로그인한 운영진 학번으로 소속 동아리 번호 자동 조회.
+        int currentOrgId = orgDao.getOrgIdByPresidentId(loginedStudentId);
+
+        if (currentOrgId == -1) {
+            System.out.println("운영진 권한이 없거나 소속된 동아리를 찾을 수 없습니다.");
+            return;
+        }
+
         boolean isRunning = true;
         while (isRunning) {
             System.out.println("\n================= [운영진 메뉴] =================");
             System.out.println("1. 신규 모집 공고 등록         2. 등록된 모집 공고 수정");
             System.out.println("3. 모집 공고 삭제             4. 모집 공고 마감 처리");
-            System.out.println("5. 지원자 전체 조회           6. 지원서 일괄 합격/불합격 처리");
+            System.out.println("5. 동아리/학회 비활성화"       6. 지원자 전체 조회);
+            System.out.println("7. 지원서 일괄 합격/불합격 처리");                       
             System.out.println("0. 로그아웃");
             System.out.println("=================================================");
-            System.out.print("▶ 원하시는 관리 작업 번호를 선택하세요: ");
+            System.out.print("▶ 원하시는 관리 번호를 선택하세요: ");
 
             try {
                 int choice = Integer.parseInt(sc.nextLine().trim());
                 switch (choice) {
                     case 1:
                         System.out.println("\n--- 신규 모집 공고 등록 ---");
-                        System.out.print("▶ 동아리 번호 입력: ");
-                        int orgId = Integer.parseInt(sc.nextLine().trim());
+                        // 💡 수동 입력 삭제 완료!
                         System.out.print("▶ 공고 제목 입력: ");
                         String title = sc.nextLine().trim();
                         System.out.print("▶ 지원 자격 요건 입력: ");
@@ -251,20 +259,22 @@ public class Main {
                         boolean interview = Boolean.parseBoolean(sc.nextLine().trim());
 
                         RecruitmentDTO newRecruit = new RecruitmentDTO();
-                        newRecruit.setOrgId(orgId);
+                        newRecruit.setOrgId(currentOrgId); //자동 조회된 본인 동아리 ID
                         newRecruit.setTitle(title);
                         newRecruit.setQualification(qual);
-                        newRecruit.setStartDate(new Timestamp(System.currentTimeMillis())); //시작일은 현재 시간
-                        newRecruit.setEndDate(new Timestamp(System.currentTimeMillis() + (7L * 24 * 60 * 60 * 1000))); //기본 마감 -일주일 뒤
+                        newRecruit.setStartDate(new Timestamp(System.currentTimeMillis()));
+                        newRecruit.setEndDate(new Timestamp(System.currentTimeMillis() + (7L * 24 * 60 * 60 * 1000)));
                         newRecruit.setInterviewRequired(interview);
 
                         if (recruitmentDao.insertRecruitment(newRecruit)) {
-                            System.out.println("성공적으로 신규 공고가 시스템에 등록되었습니다.");
+                            System.out.println("성공적으로 신규 공고가 등록되었습니다.");
                         }
                         break;
-
                     case 2:
                         System.out.println("\n--- 모집 공고 내용 수정 ---");
+                        //수정 전 본인 동아리의 공고 목록 출력
+                        recruitmentDao.printRecruitmentsByOrgId(currentOrgId);
+                        
                         System.out.print("▶ 수정할 공고의 번호를 입력하세요: ");
                         int updateId = Integer.parseInt(sc.nextLine().trim());
                         
@@ -275,8 +285,14 @@ public class Main {
                             break;
                         }
 
+                        //타 동아리 공고 수정 차단
+                        if (updateRecruit.getOrgId() != currentOrgId) {
+                            System.out.println("!!본인 동아리의 공고만 수정할 수 있습니다.");
+                            break;
+                        }
+
                         System.out.println("[현재 제목] " + updateRecruit.getTitle());
-                        System.out.print("▶ 새 제목 입력 (엔터 입력 시 기존 제목 유지): ");
+                        System.out.print("▶ 새 제목 입력 (엔터 입력 시 기존 제목 유지.): ");
                         String newTitle = sc.nextLine().trim();
                         if (!newTitle.isEmpty()) {
                             updateRecruit.setTitle(newTitle);
@@ -304,20 +320,20 @@ public class Main {
 
                     case 3:
                         System.out.println("\n--- 모집 공고 파기/삭제 ---");
-                        
-                        System.out.print("▶동아리 번호 입력: ");
-                        int currentOrgId = Integer.parseInt(sc.nextLine().trim());
+                        recruitmentDao.printRecruitmentsByOrgId(currentOrgId);
                         
                         System.out.print("▶ 삭제할 공고 번호를 입력하세요: ");
                         int deleteId = Integer.parseInt(sc.nextLine().trim());
                         
                         if (recruitmentDao.deleteRecruitment(deleteId, currentOrgId)) {
-                            System.out.println("공고 데이터 파기 프로세스가 완료되었습니다.");
+                            System.out.println("공고 데이터 파기 완료되었습니다.");
                         }
                         break;
 
                     case 4:
-                    	System.out.println("\n--- 모집 공고 즉시 마감 처리 ---");
+                        System.out.println("\n--- 모집 공고 즉시 마감 처리 ---");
+                        recruitmentDao.printRecruitmentsByOrgId(currentOrgId);
+                        
                         System.out.print("▶ 강제 마감할 공고 번호를 입력하세요: ");
                         int closeId = Integer.parseInt(sc.nextLine().trim());
            
@@ -325,6 +341,11 @@ public class Main {
                         
                         if (closeRecruit == null) {
                             System.out.println("해당 번호의 공고를 찾을 수 없습니다.");
+                            break;
+                        }
+
+                        if (closeRecruit.getOrgId() != currentOrgId) {
+                            System.out.println("본인 동아리의 공고만 마감 처리할 수 있습니다.");
                             break;
                         }
 
@@ -336,11 +357,26 @@ public class Main {
                         break;
 
                     case 5:
+                    	System.out.println("\n--- 동아리/학회 비활성화 ---");
+                    	System.out.print("▶ 비활성화할 단체 번호를 입력하세요: ");
+                    	int deactivateId = Integer.parseInt(sc.nextLine().trim());
+                    	
+                    	boolean isDeactivate = orgDao.deactivateOrganization(deactivateId,loginedStudentId);
+                    	System.out.println("\n==================================");
+                        if (isDeactivate) {
+                            System.out.println("[안내] 단체가 성공적으로 비활성화되었습니다.");
+                        } else {
+                            System.out.println("[오류] 비활성화 처리에 실패했습니다. (입력 정보를 다시 확인해주세요)");
+                        }
+                        System.out.println("==================================");
+                    	break;
+  
+                    case 6:
                         System.out.println("\n--- 지원자 전체 조회 ---");
                         applicationDao.getApplicationsByOrg(loginedStudentId);
                         break;
 
-                    case 6:
+                    case 7:
                         System.out.println("\n--- 지원서 일괄 합격/불합격 처리 (트랜잭션) ---");
                         applicationDao.getApplicationsByOrg(loginedStudentId); 
                         
@@ -370,7 +406,7 @@ public class Main {
                         System.out.println("잘못된 번호 선택입니다.");
                 }
             } catch (NumberFormatException e) {
-                System.out.println("숫자 형식에 맞게 메뉴를 다시 선택해 주세요.");
+                System.out.println("형식에 맞게 메뉴를 다시 선택해 주세요.");
             }
         }
     }

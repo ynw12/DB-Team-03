@@ -11,7 +11,8 @@ import db_project2026_team03.DBConnection;
 import db_project2026_team03.dto.OrganizationDTO;
 
 public class OrganizationDAO {
-
+	
+	// [DAO 기본 세팅] Organization Insert
     public boolean insertOrganization(OrganizationDTO org) {
         String sql = "INSERT INTO Organization (org_name, org_type_id, category_id, description, short_description, president_id, org_status) VALUES (?, ?, ?, ?, ?, ?, ?)";
         boolean isSuccess = false;
@@ -37,6 +38,7 @@ public class OrganizationDAO {
         return isSuccess;
     }
 
+    // [DAO 기본 세팅] Organization 조회
     public List<OrganizationDTO> selectAllOrganizations() {
         String sql = "SELECT * FROM Organization";
         List<OrganizationDTO> list = new ArrayList<>();
@@ -180,6 +182,8 @@ public class OrganizationDAO {
             System.out.println("xx 동아리 상세 조회 실패: " + e.getMessage());
         }
     }
+    
+    // 학생의 운영진 여부 조회
     public boolean checkIsAdmin(String studentId) {
         String sql = "SELECT 1 FROM Organization WHERE president_id = ? LIMIT 1";
         
@@ -217,6 +221,87 @@ public class OrganizationDAO {
         }
 
         return -1; // 해당 학생이 운영진이 아닌 경우
+    }
+    
+    // [트랜잭션] 동아리 비활성화 - 북마크 삭제
+    public boolean deactivateOrganization(int orgId, String loginedStudentId) {
+        String checkManagerSql = "SELECT president_id FROM Organization WHERE org_id = ?";
+        String deactivateSql = "UPDATE Organization SET org_status = false WHERE org_id = ?";
+        String deleteBookmarkSql = "DELETE FROM Bookmark WHERE org_id = ?";
+        
+        Connection conn = null; 
+
+        try {
+            conn = DBConnection.getConnection();
+            conn.setAutoCommit(false);
+
+            // 0. 운영진 권한 체크 및 동아리 존재 여부 확인
+            try (PreparedStatement pstmt = conn.prepareStatement(checkManagerSql)) {
+                pstmt.setInt(1, orgId);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        String managerId = rs.getString("president_id");
+                        // 로그인한 학번과 동아리 관리자 학번 비교
+                        if (!loginedStudentId.equals(managerId)) {
+                            System.out.println("xx 권한이 없습니다. 본인이 운영진인 동아리만 처리가 가능합니다.");
+                            conn.rollback();
+                            return false;
+                        }
+                    } else {
+                        // 여기서 존재하지 않는 동아리를 완벽히 걸러냅니다.
+                        System.out.println("xx 존재하지 않는 동아리입니다.");
+                        conn.rollback();
+                        return false;
+                    }
+                }
+            }
+
+            // 1. 동아리 비활성화 UPDATE 
+            try (PreparedStatement pstmt = conn.prepareStatement(deactivateSql)) {
+                pstmt.setInt(1, orgId);
+                // 0번에서 존재 여부 검증을 마쳤으므로 예외 조건문 없이 바로 실행합니다.
+                pstmt.executeUpdate();
+            }
+
+            // 2. 해당 동아리 북마크 일괄 삭제
+            try (PreparedStatement pstmt = conn.prepareStatement(deleteBookmarkSql)) {
+                pstmt.setInt(1, orgId);
+                int deleted = pstmt.executeUpdate();
+                // 북마크 n건 삭제 출력 (삭제 개수 출력)
+                System.out.println("\n==========================");
+                System.out.println("북마크 " + deleted + "건 삭제");
+            }
+
+            conn.commit(); // 모든 작업 성공 시 커밋
+            System.out.println("동아리 비활성화 완료 | org_id: " + orgId);
+            return true;
+
+        } 
+        // 작업(update,delete) 성공 했어도 db 꺼지거나 sql 에러 등 예외 사항 발생 시 
+        catch (SQLException e) {
+            System.out.println("xx 처리 실패, 롤백 진행: " + e.getMessage());
+            
+            // 에러 발생 시 안전하게 롤백 처리
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    System.out.println("xx 롤백 중 추가 에러 발생: " + ex.getMessage());
+                }
+            }
+            return false;
+            
+        } finally {
+            // Connection 자원 반납 (연희님께서 얘기한 커넥션 해지 명시)
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) {
+                    System.out.println("xx 커넥션 닫기 실패: " + e.getMessage());
+                }
+            }
+        }
     }
 }
 

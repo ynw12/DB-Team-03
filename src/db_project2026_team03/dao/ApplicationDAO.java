@@ -233,4 +233,61 @@ public class ApplicationDAO {
         
     }
     
+    // [지원서 일괄 심사]
+    public boolean updateBatchPassStatus(int recruitmentId, List<Integer> passedAppIds) {
+        String sqlAllFail = "UPDATE Application SET pass_status = '불합격' WHERE recruitment_id = ?";
+        
+        StringBuilder sqlPassBuilder = new StringBuilder("UPDATE Application SET pass_status = '합격' WHERE application_id IN (");
+        for (int i = 0; i < passedAppIds.size(); i++) {
+            sqlPassBuilder.append("?");
+            if (i < passedAppIds.size() - 1) sqlPassBuilder.append(",");
+        }
+        sqlPassBuilder.append(")");
+
+        Connection conn = null;
+        try {
+            conn = DBConnection.getConnection();
+            conn.setAutoCommit(false); 
+
+            try (PreparedStatement pstmt1 = conn.prepareStatement(sqlAllFail)) {
+                pstmt1.setInt(1, recruitmentId);
+                pstmt1.executeUpdate();
+            }
+
+            if (!passedAppIds.isEmpty()) {
+                try (PreparedStatement pstmt2 = conn.prepareStatement(sqlPassBuilder.toString())) {
+                    for (int i = 0; i < passedAppIds.size(); i++) {
+                        pstmt2.setInt(i + 1, passedAppIds.get(i));
+                    }
+                    pstmt2.executeUpdate();
+                }
+            }
+
+            conn.commit(); 
+            System.out.println("[트랜잭션 성공] 일괄 심사 처리가 완료되었습니다. (지정 인원 합격, 그 외 불합격)");
+            return true;
+
+        } catch (SQLException e) {
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                    System.out.println("xx [트랜잭션 롤백] 심사 처리 중 오류가 발생하여 모든 작업이 취소되었습니다.");
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            System.out.println("xx 에러 상세: " + e.getMessage());
+            return false;
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+        
 }

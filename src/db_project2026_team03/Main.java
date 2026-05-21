@@ -239,7 +239,8 @@ public class Main {
             System.out.println("\n================= [운영진 메뉴] =================");
             System.out.println("1. 신규 모집 공고 등록         2. 등록된 모집 공고 수정");
             System.out.println("3. 모집 공고 삭제             4. 모집 공고 마감 처리");
-            System.out.println("5. 동아리/학회 비활성화");
+            System.out.println("5. 동아리/학회 비활성화"       6. 지원자 전체 조회);
+            System.out.println("7. 지원서 일괄 합격/불합격 처리");                       
             System.out.println("0. 로그아웃");
             System.out.println("=================================================");
             System.out.print("▶ 원하시는 관리 번호를 선택하세요: ");
@@ -354,7 +355,7 @@ public class Main {
                             System.out.println("해당 공고의 모집이 조기 마감 처리되었습니다.");
                         }
                         break;
-                        
+
                     case 5:
                     	System.out.println("\n--- 동아리/학회 비활성화 ---");
                     	System.out.print("▶ 비활성화할 단체 번호를 입력하세요: ");
@@ -369,7 +370,33 @@ public class Main {
                         }
                         System.out.println("==================================");
                     	break;
-                    	
+  
+                    case 6:
+                        System.out.println("\n--- 지원자 전체 조회 ---");
+                        applicationDao.getApplicationsByOrg(loginedStudentId);
+                        break;
+
+                    case 7:
+                        System.out.println("\n--- 지원서 일괄 합격/불합격 처리 (트랜잭션) ---");
+                        applicationDao.getApplicationsByOrg(loginedStudentId); 
+                        
+                        System.out.print("▶ 심사를 진행할 [공고 번호(ID)] 입력: ");
+                        int recruitmentId = Integer.parseInt(sc.nextLine().trim());
+                        
+                        System.out.print("▶ 합격 처리할 [지원서 ID]들을 쉼표(,)로 구분하여 입력\n  (예: 1,3,5 / 전원 불합격 처리 시 그냥 엔터): ");
+                        String inputIds = sc.nextLine().trim();
+
+                        java.util.List<Integer> passedAppIds = new java.util.ArrayList<>();
+                        if (!inputIds.isEmpty()) {
+                            String[] tokens = inputIds.split(",");
+                            for (String token : tokens) {
+                                passedAppIds.add(Integer.parseInt(token.trim()));
+                            }
+                        }
+
+                        applicationDao.updateBatchPassStatus(recruitmentId, passedAppIds);
+                        break;
+
                     case 0:
                         System.out.println("운영진 메뉴를 종료하고 로그아웃합니다.");
                         isRunning = false;

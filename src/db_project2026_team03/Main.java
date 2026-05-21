@@ -238,8 +238,8 @@ public class Main {
         while (isRunning) {
             System.out.println("\n================= [운영진 메뉴] =================");
             System.out.println("1. 신규 모집 공고 등록         2. 등록된 모집 공고 수정");
-            System.out.println("3. 모집 공고 삭제             4. 모집 공고 마감 처리");
-            System.out.println("5. 동아리/학회 비활성화"       6. 지원자 전체 조회);
+            System.out.println("3. 모집 공고 삭제            4. 모집 공고 마감 처리");
+            System.out.println("5. 동아리/학회 비활성화        6. 지원자 전체 조회");
             System.out.println("7. 지원서 일괄 합격/불합격 처리");                       
             System.out.println("0. 로그아웃");
             System.out.println("=================================================");

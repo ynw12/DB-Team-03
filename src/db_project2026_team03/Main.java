@@ -238,7 +238,7 @@ public class Main {
         while (isRunning) {
             System.out.println("\n================= [운영진 메뉴] =================");
             System.out.println("1. 신규 모집 공고 등록         2. 등록된 모집 공고 수정");
-            System.out.println("3. 모집 공고 삭제            4. 모집 공고 마감 처리");
+            System.out.println("3. 모집 공고 삭제              4. 모집 공고 마감 처리");
             System.out.println("5. 동아리/학회 비활성화        6. 지원자 전체 조회");
             System.out.println("7. 지원서 일괄 합격/불합격 처리");                       
             System.out.println("0. 로그아웃");
@@ -250,7 +250,6 @@ public class Main {
                 switch (choice) {
                     case 1:
                         System.out.println("\n--- 신규 모집 공고 등록 ---");
-                        // 💡 수동 입력 삭제 완료!
                         System.out.print("▶ 공고 제목 입력: ");
                         String title = sc.nextLine().trim();
                         System.out.print("▶ 지원 자격 요건 입력: ");
@@ -357,19 +356,19 @@ public class Main {
                         break;
 
                     case 5:
-                    	System.out.println("\n--- 동아리/학회 비활성화 ---");
-                    	System.out.print("▶ 비활성화할 단체 번호를 입력하세요: ");
-                    	int deactivateId = Integer.parseInt(sc.nextLine().trim());
-                    	
-                    	boolean isDeactivate = orgDao.deactivateOrganization(deactivateId,loginedStudentId);
-                    	System.out.println("\n==================================");
+                       System.out.println("\n--- 동아리/학회 비활성화 ---");
+                       System.out.print("▶ 비활성화할 단체 번호를 입력하세요: ");
+                       int deactivateId = Integer.parseInt(sc.nextLine().trim());
+                       
+                       boolean isDeactivate = orgDao.deactivateOrganization(deactivateId,loginedStudentId);
+                       System.out.println("\n==================================");
                         if (isDeactivate) {
                             System.out.println("[안내] 단체가 성공적으로 비활성화되었습니다.");
                         } else {
                             System.out.println("[오류] 비활성화 처리에 실패했습니다. (입력 정보를 다시 확인해주세요)");
                         }
                         System.out.println("==================================");
-                    	break;
+                       break;
   
                     case 6:
                         System.out.println("\n--- 지원자 전체 조회 ---");

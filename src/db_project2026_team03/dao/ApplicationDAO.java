@@ -11,69 +11,69 @@ import db_project2026_team03.DBConnection;
 import db_project2026_team03.dto.ApplicationDTO;
 
 public class ApplicationDAO {
-	
-	// [지원하기] create 및 안내 출력문
-	   public boolean createApplication(ApplicationDTO app) {
-	       String sql = "INSERT INTO Application (recruitment_id, student_id, self_intro) VALUES (?, ?, ?)";
-	       boolean isSuccess = false;
+   
+   // [지원하기] create 및 안내 출력문
+      public boolean createApplication(ApplicationDTO app) {
+          String sql = "INSERT INTO Application (recruitment_id, student_id, self_intro) VALUES (?, ?, ?)";
+          boolean isSuccess = false;
 
-	       try (Connection conn = DBConnection.getConnection();
-	            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+          try (Connection conn = DBConnection.getConnection();
+               PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-	           pstmt.setInt(1, app.getRecruitmentId());
-	           pstmt.setString(2, app.getStudentId());
-	           pstmt.setString(3, app.getSelfIntro());
+              pstmt.setInt(1, app.getRecruitmentId());
+              pstmt.setString(2, app.getStudentId());
+              pstmt.setString(3, app.getSelfIntro());
 
-	           int rowsAffected = pstmt.executeUpdate();
+              int rowsAffected = pstmt.executeUpdate();
 
-	           if (rowsAffected > 0) {
-	               isSuccess = true;
+              if (rowsAffected > 0) {
+                  isSuccess = true;
 
-	               // 지원 후 팝업
-	               String selectSql =
-	                   "SELECT a.application_id, a.pass_status, a.self_intro, " +
-	                   "       s.student_id, s.name AS student_name " +
-	                   "FROM Application a " +
-	                   "JOIN Student s ON a.student_id = s.student_id " +
-	                   "WHERE a.student_id = ? AND a.recruitment_id = ? ";
+                  // 지원 후 팝업
+                  String selectSql =
+                      "SELECT a.application_id, a.pass_status, a.self_intro, " +
+                      "       s.student_id, s.name AS student_name " +
+                      "FROM Application a " +
+                      "JOIN Student s ON a.student_id = s.student_id " +
+                      "WHERE a.student_id = ? AND a.recruitment_id = ? ";
 
-	               try (PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
-	                   selectStmt.setString(1, app.getStudentId());
-	                   selectStmt.setInt(2, app.getRecruitmentId());
+                  try (PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
+                      selectStmt.setString(1, app.getStudentId());
+                      selectStmt.setInt(2, app.getRecruitmentId());
 
-	                   try (ResultSet rs = selectStmt.executeQuery()) {
-	                       if (rs.next()) {
-	                           int applicationId = rs.getInt("application_id");
-	                           String passStatus = rs.getString("pass_status");
-	                           String studentId = rs.getString("student_id");
-	                           String studentName = rs.getString("student_name");
-	                           String selfIntro = rs.getString("self_intro");
+                      try (ResultSet rs = selectStmt.executeQuery()) {
+                          if (rs.next()) {
+                              int applicationId = rs.getInt("application_id");
+                              String passStatus = rs.getString("pass_status");
+                              String studentId = rs.getString("student_id");
+                              String studentName = rs.getString("student_name");
+                              String selfIntro = rs.getString("self_intro");
 
-	                           System.out.println();
-	                           System.out.println("\n✅ 지원이 완료되었습니다.");
-	                           System.out.println("============================================");
-	                           System.out.printf("[ %s ] 님의 지원서%n", studentName);
-	                           System.out.println("--------------------------------------------");
-	                           System.out.println("▶ 지원 번호 : " + applicationId);
-	                           System.out.println("▶ 공고 번호 : " + app.getRecruitmentId());
-	                           System.out.println("▶ 지원자 학번 : " + studentId);
-	                           System.out.println("▶ 심사 상태 : " + passStatus);
-	                           System.out.println("--------------------------------------------");
-	                           System.out.println("▶ 자기소개");
-	                           System.out.println(selfIntro);
-	                           System.out.println("============================================");
-	                       } else {
-	                           System.out.println("xx 지원에 실패했습니다.");
-	                       }
-	                   }
-	               }
-	           }
-	       } catch (SQLException e) {
-	           System.out.println("xx Application 등록 실패: " + e.getMessage());
-	       }
+                              System.out.println();
+                              System.out.println("\n✅ 지원이 완료되었습니다.");
+                              System.out.println("============================================");
+                              System.out.printf("[ %s ] 님의 지원서%n", studentName);
+                              System.out.println("--------------------------------------------");
+                              System.out.println("▶ 지원 번호 : " + applicationId);
+                              System.out.println("▶ 공고 번호 : " + app.getRecruitmentId());
+                              System.out.println("▶ 지원자 학번 : " + studentId);
+                              System.out.println("▶ 심사 상태 : " + passStatus);
+                              System.out.println("--------------------------------------------");
+                              System.out.println("▶ 자기소개");
+                              System.out.println(selfIntro);
+                              System.out.println("============================================");
+                          } else {
+                              System.out.println("xx 지원에 실패했습니다.");
+                          }
+                      }
+                  }
+              }
+          } catch (SQLException e) {
+              System.out.println("xx Application 등록 실패: " + e.getMessage());
+          }
 
-	       return isSuccess;
-	   }
+          return isSuccess;
+      }
     // [기존 DAO 세팅] 전체 Application 출력
     public List<ApplicationDTO> selectAllApplications() {
         String sql = "SELECT * FROM Application";
@@ -103,8 +103,8 @@ public class ApplicationDAO {
     // idx_application_student_recruitment 와 매칭 
     public void getApplicationsByStudent(String studentId) {
 
-    	// 학생 이름 먼저 조회
-    	int id = Integer.parseInt(studentId);
+       // 학생 이름 먼저 조회
+       int id = Integer.parseInt(studentId);
         String studentName = StudentDAO.getStudentName(id);
         if (studentName == null) {
             System.out.println("xx 존재하지 않는 학생입니다.");
@@ -160,7 +160,7 @@ public class ApplicationDAO {
         String sql =
             "SELECT a.application_id, " +
             "       s.student_id, s.name, s.university, s.major, " +
-            "       r.title AS recruitment_title, " +
+            "       r.recruitment_id, r.title AS recruitment_title, " +
             "       a.self_intro, a.pass_status " +
             "FROM Application a " +
             "JOIN Student s      ON a.student_id     = s.student_id " +
@@ -187,7 +187,7 @@ public class ApplicationDAO {
                     System.out.println("▶ 이름      : " + rs.getString("name"));
                     System.out.println("▶ 대학교    : " + rs.getString("university"));
                     System.out.println("▶ 전공      : " + rs.getString("major"));
-                    System.out.println("▶ 지원 공고 : " + rs.getString("recruitment_title"));
+                    System.out.println("▶ 지원 공고 : [" + rs.getInt("recruitment_id") + "] " + rs.getString("recruitment_title"));
                     System.out.println("▶ 자기소개서: " + rs.getString("self_intro"));
                     System.out.println("▶ 심사 상태 : " + rs.getString("pass_status"));
                 }

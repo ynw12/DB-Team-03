@@ -215,8 +215,8 @@ public class RecruitmentDAO {
 
     // 특정 동아리의 모집 공고 목록 출력
     public void printRecruitmentsByOrgId(int orgId) {
-        String sql = "SELECT recruitment_id, title, start_date, end_date, interview_required "
-                   + "FROM Recruitment "
+        String sql = "SELECT recruitment_id, recruitment_title, start_date, end_date, interview_required, recruit_status "
+                   + "FROM vw_all_recruitments "
                    + "WHERE org_id = ? "
                    + "ORDER BY end_date ASC";
 
@@ -227,18 +227,18 @@ public class RecruitmentDAO {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 System.out.println("\n===== 내 동아리 모집 공고 목록 =====");
-                System.out.println("공고번호 | 제목 | 시작일 | 마감일 | 면접여부");
-                System.out.println("----------------------------------------");
+                System.out.println("번호 | 상태 | 제목 | 마감일 | 면접여부");
+                System.out.println("------------------------------------------------");
 
                 boolean hasData = false;
                 while (rs.next()) {
                     hasData = true;
                     System.out.printf(
-                        "%d | %s | %s | %s | %s\n",
+                        "%d | [%s] | %s | %s | %s\n",
                         rs.getInt("recruitment_id"),
-                        rs.getString("title"),
-                        rs.getTimestamp("start_date"),
-                        rs.getTimestamp("end_date"),
+                        rs.getString("recruit_status"),     
+                        rs.getString("recruitment_title"),  
+                        rs.getDate("end_date").toString(),  
                         rs.getBoolean("interview_required") ? "있음" : "없음"
                     );
                 }
@@ -246,14 +246,14 @@ public class RecruitmentDAO {
                 if (!hasData) {
                     System.out.println("등록된 모집 공고가 없습니다.");
                 }
-                System.out.println("========================================\n");
+
+                System.out.println("================================================\n");
             }
         } catch (SQLException e) {
             System.out.println("xx 내 모집 공고 목록 조회 실패: " + e.getMessage());
         }
     }
 
-    // [나은님 트랜잭션 직전 deleteRecruitment 메소드]
     public boolean deleteRecruitment(int recruitmentId, int currentOrgId) {
 
         String sql = "DELETE FROM Recruitment "

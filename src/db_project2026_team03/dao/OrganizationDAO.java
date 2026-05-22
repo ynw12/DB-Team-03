@@ -223,6 +223,44 @@ public class OrganizationDAO {
         return -1; // 해당 학생이 운영진이 아닌 경우
     }
     
+    // [관리중인 동아리/학회 출력]
+    // 로그인한 학번(운영진)이 관리하는 '활성화 상태'의 동아리 목록을 출력하고, 해당 동아리 번호(org_id) 리스트를 반환
+    public List<Integer> getManagedActiveOrganizations(String loginedStudentId) {
+        List<Integer> managedOrgIds = new ArrayList<>();
+        
+        // 본인이 회장(president_id)이면서, 현재 활성화(org_status = true) 상태인 동아리만 조회
+        String sql = "SELECT org_id, org_name FROM Organization WHERE president_id = ? AND org_status = true";
+        
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             
+            pstmt.setString(1, loginedStudentId);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                System.out.println("\n[ 관리 중인 동아리/학회 목록 ]");
+                boolean hasData = false;
+                
+                while (rs.next()) {
+                    hasData = true;
+                    int orgId = rs.getInt("org_id");
+                    String orgName = rs.getString("org_name");
+                    
+                    managedOrgIds.add(orgId); // 리스트에 동아리 번호 추가
+                    System.out.println("- 단체 번호 [" + orgId + "] : " + orgName);
+                }
+                
+                if (!hasData) {
+                    System.out.println("현재 관리 중인 활성 동아리/학회가 없습니다.");
+                }
+            }
+            
+        } catch (SQLException e) {
+            System.out.println("xx 목록 조회 실패: " + e.getMessage());
+        }
+        
+        return managedOrgIds; // 동아리 번호들이 담긴 리스트 반환
+    }
+    
     // [트랜잭션] 동아리 비활성화 - 북마크 삭제
     public boolean deactivateOrganization(int orgId, String loginedStudentId) {
         String checkManagerSql = "SELECT president_id FROM Organization WHERE org_id = ?";

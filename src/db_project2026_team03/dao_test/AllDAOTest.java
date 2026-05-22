@@ -170,15 +170,17 @@ public class AllDAOTest {
         
         boolean inserted = dao.insertRecruitment(dto);
         printResult("Recruitment INSERT", inserted);
+
+        recruitmentId = findInt("SELECT recruitment_id FROM Recruitment WHERE title = ?", title);
+        printResult("Recruitment SELECT / ID 확인", recruitmentId > 0);
+        System.out.println("recruitmentId = " + recruitmentId);
         
         int deleteTargetId = findInt("SELECT recruitment_id FROM Recruitment WHERE title = ?",
         	    PREFIX + " 삭제테스트공고");
 
         	System.out.println("\n--- deleteRecruitment 트랜잭션 테스트 ---");
-        	
-
         	// 정상 삭제 (commit 케이스)
-        	/*boolean deleteResult = deleteDao.deleteRecruitment(deleteTargetId, orgId);
+        	boolean deleteResult = deleteDao.deleteRecruitment(deleteTargetId, orgId);
         	printResult("deleteRecruitment 정상 삭제 (commit)", deleteResult);
 
         	// 존재하지 않는 ID (rollback 케이스)
@@ -186,8 +188,8 @@ public class AllDAOTest {
         	printResult("deleteRecruitment 존재하지 않는 ID (rollback)", !rollbackResult);
 
         	// 권한 없는 org_id (rollback 케이스)
-        	boolean noAuthResult = deleteDao.deleteRecruitment(recruitmentId, -1);
-        	printResult("deleteRecruitment 권한 없는 org_id (rollback)", !noAuthResult);*/
+        	boolean noAuthResult = deleteDao.deleteRecruitment(deleteTargetId, -1);
+        	printResult("deleteRecruitment 권한 없는 org_id (rollback)", !noAuthResult);
 
 
     }
@@ -216,7 +218,73 @@ public class AllDAOTest {
         String passStatus = findString("SELECT pass_status FROM Application WHERE application_id = ?", applicationId);
         printResult("Application DEFAULT pass_status 확인", "대기".equals(passStatus));
         System.out.println("pass_status = " + passStatus);
-    }
+        
+        
+        System.out.println("\n--- 지원서 제출 + 스크랩 자동 삭제 트랜잭션 테스트 ---");
+        System.out.println("\n1.스크랩 있는 상태에서 지원");
+        // 스크랩 추가
+        String insertScrapSql = "INSERT INTO Scrap (recruitment_id, student_id) VALUES (?, ?)";
+        try (Connection conn = DBConnection.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(insertScrapSql)) {
+            pstmt.setInt(1, recruitmentId);
+            pstmt.setString(2, studentId);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("xx 스크랩 추가 실패: " + e.getMessage());
+        }
+	     // 스크랩 추가 확인
+	     int scrapBefore = findInt(
+	         "SELECT COUNT(*) FROM Scrap WHERE recruitment_id = ? AND student_id = ?",
+	         recruitmentId, studentId
+	     );
+	     printResult("지원 전 스크랩 존재 확인", scrapBefore > 0);
+
+	     // 기존 지원서 삭제 (중복 방지)
+	     try (Connection conn = DBConnection.getConnection();
+	          PreparedStatement pstmt = conn.prepareStatement(
+	              "DELETE FROM Application WHERE recruitment_id = ? AND student_id = ?")) {
+	         pstmt.setInt(1, recruitmentId);
+	         pstmt.setString(2, studentId);
+	         pstmt.executeUpdate();
+	     } catch (SQLException e) {
+	    	    System.out.println("xx 지원서 삭제 실패: " + e.getMessage());
+	     }
+
+	     // 지원서 제출 (트랜잭션 실행)
+	     ApplicationDAO appDao2 = new ApplicationDAO();
+	     ApplicationDTO newApp = new ApplicationDTO();
+	     newApp.setRecruitmentId(recruitmentId);
+	     newApp.setStudentId(studentId);
+	     newApp.setSelfIntro(PREFIX + " 트랜잭션 테스트 자기소개서");
+	     boolean applyResult = appDao2.createApplication(newApp);
+	     printResult("지원서 INSERT (commit)", applyResult);
+
+	     // 스크랩 자동 삭제 확인
+	     int scrapAfter = findInt(
+	         "SELECT COUNT(*) FROM Scrap WHERE recruitment_id = ? AND student_id = ?",
+	         recruitmentId, studentId
+	     );
+	     printResult("지원 후 스크랩 자동 삭제 확인", scrapAfter == 0);
+	
+	     System.out.println("\n2. 스크랩 없는 상태에서 지원");
+	     // 기존 지원서 삭제
+	     try (Connection conn = DBConnection.getConnection();
+	    	     PreparedStatement pstmt = conn.prepareStatement(
+	    	         "DELETE FROM Application WHERE recruitment_id = ? AND student_id = ?")) {
+	    	    pstmt.setInt(1, recruitmentId);
+	    	    pstmt.setString(2, studentId);
+	    	    pstmt.executeUpdate();
+	    	} catch (SQLException e) {
+	    	    System.out.println("xx 지원서 삭제 실패: " + e.getMessage());
+	    	}
+
+	     ApplicationDTO newApp2 = new ApplicationDTO();
+	     newApp2.setRecruitmentId(recruitmentId);
+	     newApp2.setStudentId(studentId);
+	     newApp2.setSelfIntro(PREFIX + " 스크랩 없음 테스트");
+	     boolean applyResult2 = appDao2.createApplication(newApp2);
+	     printResult("스크랩 없어도 지원서 정상 제출 확인", applyResult2);
+	    }
 
     private static void testBookmarkDAO() {
         System.out.println("\n[7] BookmarkDAO 테스트");

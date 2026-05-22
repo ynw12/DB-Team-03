@@ -366,10 +366,23 @@ public class Main {
                         
                         if (managedOrgs.size() == 1) {
                             // 1개: 번호를 묻지 않고 바로 해당 동아리 지정
-                            targetDeactivateId = managedOrgs.get(0);
-                            System.out.println("▶ 관리 중인 단체가 1개이므로, 단체 번호 [" + targetDeactivateId + "]의 비활성화를 바로 진행합니다.");
+                            System.out.print("▶ 관리 중인 단체가 1개입니다. 비활성화를 원한다면 1, 이전 목록으로 돌아가시려면 0을 입력해주세요 : ");
+                            String confirmInput = sc.nextLine().trim();
                             
-                        } else {
+                            if (confirmInput.equals("1")) {
+                            	targetDeactivateId = managedOrgs.get(0);
+                            } else if (confirmInput.equals("0")) {
+                                System.out.println("[안내] 이전 목록으로 돌아갑니다.");
+                                System.out.println("==================================");
+                                break;
+                            } else {
+                                System.out.println("\n[오류] 0 또는 1만 입력 가능합니다. 처리를 취소합니다.");
+                                System.out.println("==================================");
+                                break;
+                            }
+                        } 
+                        
+                        else {
                             // 여러 개인 경우: 목록 중 비활성화할 번호 입력받기
                             System.out.print("▶ 위 목록 중 비활성화할 단체 번호를 입력하세요: ");
                             try {

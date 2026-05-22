@@ -12,68 +12,65 @@ import db_project2026_team03.dto.ApplicationDTO;
 
 public class ApplicationDAO {
    
-   // [지원하기] create 및 안내 출력문
-      public boolean createApplication(ApplicationDTO app) {
-          String sql = "INSERT INTO Application (recruitment_id, student_id, self_intro) VALUES (?, ?, ?)";
-          boolean isSuccess = false;
+   // [지원하기] 지원서 제출 및 스크랩 자동 삭제 트랜잭션
+    public boolean createApplication(ApplicationDTO app) {
+            String insertSql = "INSERT INTO Application (recruitment_id, student_id, self_intro) VALUES (?, ?, ?)";
+    	    String deleteScrapSql = "DELETE FROM Scrap WHERE student_id = ? AND recruitment_id = ?";
 
-          try (Connection conn = DBConnection.getConnection();
-               PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-              pstmt.setInt(1, app.getRecruitmentId());
-              pstmt.setString(2, app.getStudentId());
-              pstmt.setString(3, app.getSelfIntro());
-
-              int rowsAffected = pstmt.executeUpdate();
-
-              if (rowsAffected > 0) {
-                  isSuccess = true;
-
-                  // 지원 후 팝업
-                  String selectSql =
-                      "SELECT a.application_id, a.pass_status, a.self_intro, " +
-                      "       s.student_id, s.name AS student_name " +
-                      "FROM Application a " +
-                      "JOIN Student s ON a.student_id = s.student_id " +
-                      "WHERE a.student_id = ? AND a.recruitment_id = ? ";
-
-                  try (PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
-                      selectStmt.setString(1, app.getStudentId());
-                      selectStmt.setInt(2, app.getRecruitmentId());
-
-                      try (ResultSet rs = selectStmt.executeQuery()) {
-                          if (rs.next()) {
-                              int applicationId = rs.getInt("application_id");
-                              String passStatus = rs.getString("pass_status");
-                              String studentId = rs.getString("student_id");
-                              String studentName = rs.getString("student_name");
-                              String selfIntro = rs.getString("self_intro");
-
-                              System.out.println();
-                              System.out.println("\n✅ 지원이 완료되었습니다.");
-                              System.out.println("============================================");
-                              System.out.printf("[ %s ] 님의 지원서%n", studentName);
-                              System.out.println("--------------------------------------------");
-                              System.out.println("▶ 지원 번호 : " + applicationId);
-                              System.out.println("▶ 공고 번호 : " + app.getRecruitmentId());
-                              System.out.println("▶ 지원자 학번 : " + studentId);
-                              System.out.println("▶ 심사 상태 : " + passStatus);
-                              System.out.println("--------------------------------------------");
-                              System.out.println("▶ 자기소개");
-                              System.out.println(selfIntro);
-                              System.out.println("============================================");
-                          } else {
-                              System.out.println("xx 지원에 실패했습니다.");
-                          }
-                      }
-                  }
-              }
-          } catch (SQLException e) {
-              System.out.println("xx Application 등록 실패: " + e.getMessage());
-          }
-
-          return isSuccess;
+    	    try(Connection conn = DBConnection.getConnection()) {
+    	    	conn.setAutoCommit(false);
+    	    	
+    	    	try {
+    	    		try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
+    	    			pstmt.setInt(1, app.getRecruitmentId());
+    	    			pstmt.setString(2, app.getStudentId());
+    	    			pstmt.setString(3, app.getSelfIntro());
+    	    			pstmt.executeUpdate();
+    	    		}
+    	    		
+    	    		try (PreparedStatement pstmt = conn.prepareStatement(deleteScrapSql)) {
+    	    			pstmt.setString(1,  app.getStudentId());
+    	    			pstmt.setInt(2,  app.getRecruitmentId());
+    	    			int deleted = pstmt.executeUpdate();
+    	    			
+    	    			// 스크랩이 없다면 그냥 넘어감
+    	    			if (deleted > 0) {
+    	    				System.out.println("✅ 해당 공고 스크랩이 자동으로 삭제되었습니다.");
+    	    			}
+    	    		}
+    	    		
+    	    		conn.commit();
+    	    		
+    	    		// 지원 완료 안내 출력
+    	    		String selectSql = "SELECT application_id, pass_status FROM Application " +
+                            		   "WHERE student_id = ? AND recruitment_id = ?";
+    	    		
+                    try (PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
+                        selectStmt.setString(1, app.getStudentId());
+                        selectStmt.setInt(2, app.getRecruitmentId());
+            
+                        try (ResultSet rs = selectStmt.executeQuery()) {
+                        	if (rs.next()) {
+                                System.out.println("✅ 지원이 완료되었습니다.");
+                                System.out.println("▶ 지원 ID  : " + rs.getInt("application_id"));
+                                System.out.println("▶ 공고 ID  : " + app.getRecruitmentId());
+                                System.out.println("▶ 학번     : " + app.getStudentId());
+                                System.out.println("▶ 심사 상태 : " + rs.getString("pass_status"));
+                                }
+                        }
+                    }
+                    return true;
+    	    	} catch (SQLException e) {
+    	    	    conn.rollback();
+    	    	    System.out.println("xx 지원 처리 실패(롤백): " + e.getMessage());
+    	    	    return false;
+    	    	}
+    	    } catch (SQLException e) {
+    	    	System.out.println("xx DB 연결 실패: " + e.getMessage());
+    	    	return false;
+    	    }
       }
+    
     // [기존 DAO 세팅] 전체 Application 출력
     public List<ApplicationDTO> selectAllApplications() {
         String sql = "SELECT * FROM Application";

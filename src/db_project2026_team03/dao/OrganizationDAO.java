@@ -227,8 +227,7 @@ public class OrganizationDAO {
     // 로그인한 학번(운영진)이 관리하는 '활성화 상태'의 동아리 목록을 출력하고, 해당 동아리 번호(org_id) 리스트를 반환
     public List<Integer> getManagedActiveOrganizations(String loginedStudentId) {
         List<Integer> managedOrgIds = new ArrayList<>();
-        
-        // 본인이 회장(president_id)이면서, 현재 활성화(org_status = true) 상태인 동아리만 조회
+
         String sql = "SELECT org_id, org_name FROM Organization WHERE president_id = ? AND org_status = true";
         
         try (Connection conn = DBConnection.getConnection();
@@ -258,7 +257,7 @@ public class OrganizationDAO {
             System.out.println("xx 목록 조회 실패: " + e.getMessage());
         }
         
-        return managedOrgIds; // 동아리 번호들이 담긴 리스트 반환
+        return managedOrgIds;
     }
     
     // [트랜잭션] 동아리 비활성화 - 북마크 삭제
@@ -273,7 +272,6 @@ public class OrganizationDAO {
             conn = DBConnection.getConnection();
             conn.setAutoCommit(false);
 
-            // 0. 운영진 권한 체크 및 동아리 존재 여부 확인
             try (PreparedStatement pstmt = conn.prepareStatement(checkManagerSql)) {
                 pstmt.setInt(1, orgId);
                 try (ResultSet rs = pstmt.executeQuery()) {
@@ -294,14 +292,12 @@ public class OrganizationDAO {
                 }
             }
 
-            // 1. 동아리 비활성화 UPDATE 
             try (PreparedStatement pstmt = conn.prepareStatement(deactivateSql)) {
                 pstmt.setInt(1, orgId);
                 // 0번에서 존재 여부 검증을 마쳤으므로 예외 조건문 없이 바로 실행합니다.
                 pstmt.executeUpdate();
             }
-
-            // 2. 해당 동아리 북마크 일괄 삭제
+			
             try (PreparedStatement pstmt = conn.prepareStatement(deleteBookmarkSql)) {
                 pstmt.setInt(1, orgId);
                 int deleted = pstmt.executeUpdate();
@@ -310,16 +306,14 @@ public class OrganizationDAO {
                 System.out.println("북마크 " + deleted + "건 삭제");
             }
 
-            conn.commit(); // 모든 작업 성공 시 커밋
+            conn.commit();
             System.out.println("동아리 비활성화 완료 | org_id: " + orgId);
             return true;
 
         } 
-        // 작업(update,delete) 성공 했어도 db 꺼지거나 sql 에러 등 예외 사항 발생 시 
         catch (SQLException e) {
             System.out.println("xx 처리 실패, 롤백 진행: " + e.getMessage());
             
-            // 에러 발생 시 안전하게 롤백 처리
             if (conn != null) {
                 try {
                     conn.rollback();
@@ -330,7 +324,6 @@ public class OrganizationDAO {
             return false;
             
         } finally {
-            // Connection 자원 반납 (연희님께서 얘기한 커넥션 해지 명시)
             if (conn != null) {
                 try {
                     conn.setAutoCommit(true);

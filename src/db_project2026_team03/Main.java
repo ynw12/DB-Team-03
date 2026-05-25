@@ -356,19 +356,54 @@ public class Main {
                         break;
 
                     case 5:
-                       System.out.println("\n--- 동아리/학회 비활성화 ---");
-                       System.out.print("▶ 비활성화할 단체 번호를 입력하세요: ");
-                       int deactivateId = Integer.parseInt(sc.nextLine().trim());
-                       
-                       boolean isDeactivate = orgDao.deactivateOrganization(deactivateId,loginedStudentId);
-                       System.out.println("\n==================================");
+                        System.out.println("\n--- 동아리/학회 비활성화 ---");
+                        
+                        List<Integer> managedOrgs = orgDao.getManagedActiveOrganizations(loginedStudentId);
+                        
+                        int targetDeactivateId = -1;
+                        
+                        if (managedOrgs.size() == 1) {
+                            System.out.print("▶ 관리 중인 단체가 1개입니다. 비활성화를 원한다면 1, 이전 목록으로 돌아가시려면 0을 입력해주세요 : ");
+                            String confirmInput = sc.nextLine().trim();
+                            
+                            if (confirmInput.equals("1")) {
+                            	targetDeactivateId = managedOrgs.get(0);
+                            } else if (confirmInput.equals("0")) {
+                                System.out.println("[안내] 이전 목록으로 돌아갑니다.");
+                                System.out.println("==================================");
+                                break;
+                            } else {
+                                System.out.println("\n[오류] 0 또는 1만 입력 가능합니다. 처리를 취소합니다.");
+                                System.out.println("==================================");
+                                break;
+                            }
+                        } 
+                        
+                        else {
+                            System.out.print("▶ 위 목록 중 비활성화할 단체 번호를 입력하세요: ");
+                            try {
+                                targetDeactivateId = Integer.parseInt(sc.nextLine().trim());
+                                
+                                if (!managedOrgs.contains(targetDeactivateId)) {
+                                    System.out.println("\n[오류] 본인이 관리 중인 동아리 번호가 아닙니다. 다시 확인해 주세요.");
+                                    break;
+                                }
+                            } catch (NumberFormatException e) {
+                                System.out.println("\n[오류] 숫자로만 입력해 주세요.");
+                                break;
+                            }
+                        }
+                        
+                        boolean isDeactivate = orgDao.deactivateOrganization(targetDeactivateId, loginedStudentId);
+                        
+                        System.out.println("\n==================================");
                         if (isDeactivate) {
                             System.out.println("[안내] 단체가 성공적으로 비활성화되었습니다.");
                         } else {
-                            System.out.println("[오류] 비활성화 처리에 실패했습니다. (입력 정보를 다시 확인해주세요)");
+                            System.out.println("[오류] 비활성화 처리에 실패했습니다. (DB 오류 등)");
                         }
                         System.out.println("==================================");
-                       break;
+                        break;
   
                     case 6:
                         System.out.println("\n--- 지원자 전체 조회 ---");

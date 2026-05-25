@@ -358,14 +358,11 @@ public class Main {
                     case 5:
                         System.out.println("\n--- 동아리/학회 비활성화 ---");
                         
-                        // 1. 내가 관리 중인 활성 동아리 목록 조회
                         List<Integer> managedOrgs = orgDao.getManagedActiveOrganizations(loginedStudentId);
                         
-                        // 2. 개수에 따른 분기 처리
                         int targetDeactivateId = -1;
                         
                         if (managedOrgs.size() == 1) {
-                            // 1개: 번호를 묻지 않고 바로 해당 동아리 지정
                             System.out.print("▶ 관리 중인 단체가 1개입니다. 비활성화를 원한다면 1, 이전 목록으로 돌아가시려면 0을 입력해주세요 : ");
                             String confirmInput = sc.nextLine().trim();
                             
@@ -383,12 +380,10 @@ public class Main {
                         } 
                         
                         else {
-                            // 여러 개인 경우: 목록 중 비활성화할 번호 입력받기
                             System.out.print("▶ 위 목록 중 비활성화할 단체 번호를 입력하세요: ");
                             try {
                                 targetDeactivateId = Integer.parseInt(sc.nextLine().trim());
                                 
-                                // 본인이 관리하는 동아리 번호가 맞는지 검증
                                 if (!managedOrgs.contains(targetDeactivateId)) {
                                     System.out.println("\n[오류] 본인이 관리 중인 동아리 번호가 아닙니다. 다시 확인해 주세요.");
                                     break;
@@ -399,7 +394,6 @@ public class Main {
                             }
                         }
                         
-                        // 3. 선택된 단체 번호로 비활성화(트랜잭션) 메서드 호출
                         boolean isDeactivate = orgDao.deactivateOrganization(targetDeactivateId, loginedStudentId);
                         
                         System.out.println("\n==================================");

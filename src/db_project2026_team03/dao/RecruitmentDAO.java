@@ -11,7 +11,8 @@ import db_project2026_team03.DBConnection;
 import db_project2026_team03.dto.RecruitmentDTO;
 
 public class RecruitmentDAO {
-
+	
+	//새로운 모집 공고 데이터베이스 등록
     public boolean insertRecruitment(RecruitmentDTO recruitment) {
         String sql = "INSERT INTO Recruitment (org_id, title, qualification, start_date, end_date, interview_required) VALUES (?, ?, ?, ?, ?, ?)";
         boolean isSuccess = false;
@@ -35,7 +36,7 @@ public class RecruitmentDAO {
         return isSuccess;
     }
 
-    // 전체 모집 공고 데이터 조회 (DTO 반환용)
+    //전체 모집 공고 데이터 조회
     public List<RecruitmentDTO> getAllRecruitments() {
         String sql = "SELECT * FROM vw_all_recruitments";
 
@@ -64,7 +65,7 @@ public class RecruitmentDAO {
         return list;
     }
 
-    // 모집 중인 전체 공고 목록 출력
+    //현재 진행 중인 모집 공고 목록 화면 출력
     public void printAllRecruitments() {
         String sql = "SELECT recruitment_id, org_name, recruitment_title, end_date " +
                      "FROM vw_active_recruitments " +
@@ -99,7 +100,7 @@ public class RecruitmentDAO {
         }
     }
 
-    // 모집 공고 키워드 검색
+    //모집 공고 키워드 검색, 출력
     public void searchRecruitmentsByKeyword(String keyword) {
         String sql = "SELECT recruitment_id, org_name, recruitment_title, end_date " +
                      "FROM vw_active_recruitments " +
@@ -137,7 +138,7 @@ public class RecruitmentDAO {
         }
     }
 
-    // 특정 모집 공고 상세 조회
+    //특정 모집 공고 상세 조회
     public void printRecruitmentDetail(int recruitmentId) {
         String sql = "SELECT v.*, r.qualification, DATEDIFF(v.end_date, NOW()) as d_day " +
                      "FROM vw_active_recruitments v " +
@@ -186,6 +187,7 @@ public class RecruitmentDAO {
         }
     }
 
+  	//기존 모집 공고 내용 수정
     public boolean updateRecruitment(RecruitmentDTO recruitment) {
         String sql = "UPDATE Recruitment "
                    + "SET title=?, qualification=?, start_date=?, end_date=?, "
@@ -213,7 +215,7 @@ public class RecruitmentDAO {
         return isSuccess;
     }
 
-    // 특정 동아리의 모집 공고 목록 출력
+    //특정 동아리의 모집 공고 목록 출력
     public void printRecruitmentsByOrgId(int orgId) {
         String sql = "SELECT recruitment_id, recruitment_title, start_date, end_date, interview_required, recruit_status "
                    + "FROM vw_all_recruitments "
@@ -253,7 +255,8 @@ public class RecruitmentDAO {
             System.out.println("xx 내 모집 공고 목록 조회 실패: " + e.getMessage());
         }
     }
-
+    
+    //특정 모집 공고와 연관된 데이터 일괄 삭제
     public boolean deleteRecruitment(int recruitmentId, int currentOrgId) {
 
         String sql = "DELETE FROM Recruitment "
@@ -281,44 +284,7 @@ public class RecruitmentDAO {
         return isSuccess;
     }
 
-    // [나은님 트랜잭션 메소드 | 공고 삭제] 트랜잭션으로 처리
-    // Recruitment 삭제 시 Application, Scrap은 ON DELETE CASCADE로 자동 삭제
-    // 트랜잭션으로 실패 시 전체 롤백 보장
-    /*public boolean deleteRecruitment(int recruitmentId, int currentOrgId) {
-
-        String sql = "DELETE FROM Recruitment "
-                   + "WHERE recruitment_id = ? "
-                   + "AND org_id = ?";
-
-        try (Connection conn = DBConnection.getConnection()) {
-            conn.setAutoCommit(false); // 트랜잭션 시작
-
-            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-                pstmt.setInt(1, recruitmentId);
-                pstmt.setInt(2, currentOrgId);
-
-                int rowsAffected = pstmt.executeUpdate();
-
-                if (rowsAffected == 0) {
-                    conn.rollback();
-                    System.out.println("xx 해당 공고가 존재하지 않거나 삭제 권한이 없습니다.");
-                    return false;
-                }
-                conn.commit(); // 성공 시 커밋 — Application, Scrap CASCADE 삭제도 함께 확정
-                System.out.println("✅ 공고 삭제 완료 | 관련 지원서 및 스크랩도 함께 삭제되었습니다.");
-                return true;
-
-            } catch (SQLException e) {
-                conn.rollback(); // 실패 시 롤백
-                System.out.println("xx 공고 삭제 실패, 롤백 처리: " + e.getMessage());
-                return false;
-            }
-
-        } catch (SQLException e) {
-            System.out.println("xx DB 연결 실패: " + e.getMessage());
-            return false;
-        }
-    }*/
+    //수정 및 마감을 위한 특정 모집 공고 단건 조회
     public RecruitmentDTO getRecruitmentById(int recruitmentId) {
         String sql = "SELECT * FROM Recruitment WHERE recruitment_id = ?";
 

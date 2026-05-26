@@ -11,7 +11,8 @@ import db_project2026_team03.DBConnection;
 import db_project2026_team03.dto.StudentDTO;
 
 public class StudentDAO {
-
+	
+	//신규 학생 정보 데이터베이스 추가
     public boolean insertStudent(StudentDTO student) {
         String sql = "INSERT INTO Student (student_id, name, university, major, phone) VALUES (?, ?, ?, ?, ?)";
         boolean isSuccess = false;
@@ -33,7 +34,8 @@ public class StudentDAO {
         }
         return isSuccess;
     }
-
+    
+    //등록된 전체 학생 목록 조회
     public List<StudentDTO> selectAllStudents() {
         String sql = "SELECT * FROM Student";
         List<StudentDTO> list = new ArrayList<>();
@@ -57,6 +59,8 @@ public class StudentDAO {
         }
         return list;
     }
+    
+  //입력된 학번이 존재하는지 확인
     public boolean checkStudentExist(String studentId) {
     	String sql = "SELECT 1 FROM Student WHERE student_id = ?";
         
@@ -73,7 +77,7 @@ public class StudentDAO {
         return false;
 	}
     
-    // [조회용] 학생 ID -> 학생 이름 반환 메소드
+    //학번으로 학생 이름 조회
     public static String getStudentName(int studentId) {
         String nameSql = "SELECT name FROM Student WHERE student_id = ?";
         String studentName = null;

@@ -12,7 +12,7 @@ import db_project2026_team03.dto.ApplicationDTO;
 
 public class ApplicationDAO {
    
-   // [지원하기] 지원서 제출 및 스크랩 자동 삭제 트랜잭션
+	//신규 지원서 제출 및 연관된 스크랩 내역 자동 삭제
     public boolean createApplication(ApplicationDTO app) {
             String insertSql = "INSERT INTO Application (recruitment_id, student_id, self_intro) VALUES (?, ?, ?)";
     	    String deleteScrapSql = "DELETE FROM Scrap WHERE student_id = ? AND recruitment_id = ?";
@@ -33,15 +33,15 @@ public class ApplicationDAO {
     	    			pstmt.setInt(2,  app.getRecruitmentId());
     	    			int deleted = pstmt.executeUpdate();
     	    			
-    	    			// 스크랩이 없다면 그냥 넘어감
+    	    			//스크랩이 없다면 그냥 넘어감
     	    			if (deleted > 0) {
-    	    				System.out.println("✅ 해당 공고 스크랩이 자동으로 삭제되었습니다.");
+    	    				System.out.println("해당 공고 스크랩이 자동으로 삭제되었습니다.");
     	    			}
     	    		}
     	    		
     	    		conn.commit();
     	    		
-    	    		// 지원 완료 안내 출력
+    	    		//지원 완료 안내 출력
     	    		String selectSql = "SELECT application_id, pass_status FROM Application " +
                             		   "WHERE student_id = ? AND recruitment_id = ?";
     	    		
@@ -51,7 +51,7 @@ public class ApplicationDAO {
             
                         try (ResultSet rs = selectStmt.executeQuery()) {
                         	if (rs.next()) {
-                                System.out.println("✅ 지원이 완료되었습니다.");
+                                System.out.println("지원이 완료되었습니다.");
                                 System.out.println("▶ 지원 ID  : " + rs.getInt("application_id"));
                                 System.out.println("▶ 공고 ID  : " + app.getRecruitmentId());
                                 System.out.println("▶ 학번     : " + app.getStudentId());
@@ -71,7 +71,7 @@ public class ApplicationDAO {
     	    }
       }
     
-    // [기존 DAO 세팅] 전체 Application 출력
+    //전체 지원서 목록 데이터 조회
     public List<ApplicationDTO> selectAllApplications() {
         String sql = "SELECT * FROM Application";
         List<ApplicationDTO> list = new ArrayList<>();
@@ -95,7 +95,7 @@ public class ApplicationDAO {
         }
         return list;
     }
-    // [내 지원 내역 조회] 학번으로 본인의 전체 지원 내역을 조회
+    //특정 학생이 지원한 전체 내역 화면 출력
     // Application → Recruitment → Organization 3중 JOIN
     // idx_application_student_recruitment 와 매칭 
     public void getApplicationsByStudent(String studentId) {
@@ -151,7 +151,7 @@ public class ApplicationDAO {
             System.out.println("xx 지원 내역 조회 실패: " + e.getMessage());
         }
     }
-    // [지원자 조회] 운영진 학번으로 본인 동아리 지원자 목록 + 자기소개서 열람
+    //운영진 소속 동아리에 지원한 지원자 목록 전체 조회
     // Organization.president_id = 운영진 학번 조건으로 동아리 특정
     public void getApplicationsByOrg(String presidentId) {
         String sql =
@@ -202,7 +202,7 @@ public class ApplicationDAO {
         }
     }
     
-    // [합격/불합격 처리] pass_status 업데이트
+    //특정 지원서의 단일 합격 상태 변경
     public boolean updatePassStatus(int applicationId, String status) {
         String sql = "UPDATE Application SET pass_status = ? WHERE application_id = ?";
 
@@ -230,7 +230,7 @@ public class ApplicationDAO {
         
     }
     
-    // [지원서 일괄 심사]
+    //특정 모집 공고의 전체 지원서 합격 여부 일괄 변경
     public boolean updateBatchPassStatus(int recruitmentId, List<Integer> passedAppIds) {
         String sqlAllFail = "UPDATE Application SET pass_status = '불합격' WHERE recruitment_id = ?";
         

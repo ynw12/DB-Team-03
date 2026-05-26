@@ -12,7 +12,7 @@ import db_project2026_team03.dto.OrganizationDTO;
 
 public class OrganizationDAO {
 	
-	// [DAO 기본 세팅] Organization Insert
+	//신규 동아리 정보 데이터베이스 추가
     public boolean insertOrganization(OrganizationDTO org) {
         String sql = "INSERT INTO Organization (org_name, org_type_id, category_id, description, short_description, president_id, org_status) VALUES (?, ?, ?, ?, ?, ?, ?)";
         boolean isSuccess = false;
@@ -38,7 +38,7 @@ public class OrganizationDAO {
         return isSuccess;
     }
 
-    // [DAO 기본 세팅] Organization 조회
+    //전체 동아리 목록 데이터 조회
     public List<OrganizationDTO> selectAllOrganizations() {
         String sql = "SELECT * FROM Organization";
         List<OrganizationDTO> list = new ArrayList<>();
@@ -66,7 +66,7 @@ public class OrganizationDAO {
         return list;
     }
 
-    // '활성화'된 전체 동아리 목록 조회
+    //전체 동아리 목록을 화면에 출력
     public void printAllOrganizations() {
         String sql = "SELECT o.org_id, o.org_name, t.type_name, c.category_name " +
                      "FROM Organization o " +
@@ -183,7 +183,7 @@ public class OrganizationDAO {
         }
     }
     
-    // 학생의 운영진 여부 조회
+    // 학생의 운영진 여부 확인
     public boolean checkIsAdmin(String studentId) {
         String sql = "SELECT 1 FROM Organization WHERE president_id = ? LIMIT 1";
         
@@ -223,8 +223,7 @@ public class OrganizationDAO {
         return -1; // 해당 학생이 운영진이 아닌 경우
     }
     
-    // [관리중인 동아리/학회 출력]
-    // 로그인한 학번(운영진)이 관리하는 '활성화 상태'의 동아리 목록을 출력하고, 해당 동아리 번호(org_id) 리스트를 반환
+    //로그인한 학번(운영진)이 관리하는 동아리 목록을 출력하고, 해당 동아리 번호 리스트를 반환
     public List<Integer> getManagedActiveOrganizations(String loginedStudentId) {
         List<Integer> managedOrgIds = new ArrayList<>();
 

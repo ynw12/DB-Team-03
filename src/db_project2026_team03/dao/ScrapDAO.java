@@ -13,7 +13,7 @@ import db_project2026_team03.DBConnection;
 import db_project2026_team03.dto.ScrapDTO;
 
 public class ScrapDAO {
-
+	//특정 모집 공고를 내 스크랩에 추가
     public boolean createScrap(ScrapDTO scrap) {
         String sql = "INSERT INTO Scrap (recruitment_id, student_id) VALUES (?, ?)";
         boolean isSuccess = false;
@@ -33,7 +33,7 @@ public class ScrapDAO {
                     selectStmt.setInt(1, scrap.getRecruitmentId());
                     try (ResultSet rs = selectStmt.executeQuery()) {
                         if (rs.next()) {
-                            System.out.println("\n✅ 스크랩에 추가되었습니다.");
+                            System.out.println("\n 스크랩에 추가되었습니다.");
                             System.out.println("▶ 공고명 : " + rs.getString("title"));
                         }
                     }
@@ -42,7 +42,7 @@ public class ScrapDAO {
 
         } catch (SQLException e) {
             if (e.getErrorCode() == 1062) {
-                System.out.println("\n⚠️  이미 즐겨찾기한 동아리입니다.");
+                System.out.println("\n  이미 즐겨찾기한 동아리입니다.");
             } else {
                 System.out.println("xx Scrap 조회 실패: " + e.getMessage());
                 e.printStackTrace();
@@ -51,7 +51,7 @@ public class ScrapDAO {
         return isSuccess;
     }
     
-    // [기존 DAO 세팅] 전체 scrap 조회
+    //전체 즐겨찾기 목록 데이터 조회
     public List<ScrapDTO> selectAllScraps() {
         String sql = "SELECT * FROM Scrap";
         List<ScrapDTO> list = new ArrayList<>();
@@ -75,7 +75,7 @@ public class ScrapDAO {
         return list;
     }
     
-    // [내 스크랩 조회] 학번으로 조회
+    //특정 학생이 스크랩한 공고 목록 화면 출력
     public void getScrapsByStudent(String studentId) {
 
         // 학생 이름 먼저 조회
@@ -134,7 +134,7 @@ public class ScrapDAO {
             }
         }
     
-    // [내 스크랩 삭제] 
+    ///내 스크랩 목록에서 특정 공고 삭제
     public boolean deleteScrap(String studentId, int recruitmentId) {
         String sql = "DELETE FROM Scrap WHERE student_id = ? AND recruitment_id = ?";
  

@@ -11,7 +11,8 @@ import db_project2026_team03.DBConnection;
 import db_project2026_team03.dto.CategoryDTO;
 
 public class CategoryDAO {
-
+	
+	//신규 분야 카테고리 정보 추가
     public boolean insertCategory(CategoryDTO category) {
         String sql = "INSERT INTO Category (category_name) VALUES (?)";
         boolean isSuccess = false;
@@ -29,7 +30,8 @@ public class CategoryDAO {
         }
         return isSuccess;
     }
-
+    
+  //전체 분야 카테고리 목록 조회
     public List<CategoryDTO> selectAllCategories() {
         String sql = "SELECT * FROM Category";
         List<CategoryDTO> list = new ArrayList<>();

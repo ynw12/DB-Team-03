@@ -13,7 +13,7 @@ import db_project2026_team03.dto.BookmarkDTO;
 
 public class BookmarkDAO {
 
-   // [즐겨찾기 추가] 특정 동아리를 즐겨찾기에 추가 
+   //특정 동아리를 내 즐겨찾기에 추가 
    public boolean createBookmark(BookmarkDTO bookmark) {
        String sql = "INSERT INTO Bookmark (org_id, student_id) VALUES (?, ?)";
        boolean isSuccess = false;
@@ -42,7 +42,7 @@ public class BookmarkDAO {
 
            } catch (SQLException e) {
                if (e.getErrorCode() == 1062) {
-                   System.out.println("\n⚠️  이미 즐겨찾기한 동아리입니다.");
+                   System.out.println("\n  이미 즐겨찾기한 동아리입니다.");
                } else {
                    System.out.println("xx Bookmark 조회 실패: " + e.getMessage());
                    e.printStackTrace();
@@ -50,7 +50,7 @@ public class BookmarkDAO {
            }
            return isSuccess;
        }
-   // [기존 DAO 세팅] 전체 bookmark 조회
+   //전체 즐겨찾기 목록 데이터 조회
     public List<BookmarkDTO> selectAllBookmarks() {
         String sql = "SELECT * FROM Bookmark";
         List<BookmarkDTO> list = new ArrayList<>();
@@ -74,7 +74,7 @@ public class BookmarkDAO {
         return list;
     }
     
-    // [내 즐겨찾기 조회] 학번으로 조회
+    //특정 학생이 즐겨찾기한 동아리 목록 화면 출력
     public void getBookmarksByStudent(String studentId) {
     	
     	// 학생 이름 먼저 조회
@@ -129,7 +129,7 @@ public class BookmarkDAO {
         }
     }
  
-    // [내 즐겨찾기 삭제] 
+    //내 즐겨찾기 목록에서 특정 동아리 삭제
     public boolean deleteBookmark(String studentId, int orgId) {
         String sql = "DELETE FROM Bookmark WHERE student_id = ? AND org_id = ?";
  
@@ -142,10 +142,10 @@ public class BookmarkDAO {
             int rows = pstmt.executeUpdate();
  
             if (rows > 0) {
-                System.out.println("\n✅ 즐겨찾기가 삭제되었습니다.");
+                System.out.println("\n 즐겨찾기가 삭제되었습니다.");
                 return true;
             } else {
-                System.out.println("\n⚠️  해당 즐겨찾기 내역이 없습니다.");
+                System.out.println("\n  해당 즐겨찾기 내역이 없습니다.");
                 return false;
             }
  

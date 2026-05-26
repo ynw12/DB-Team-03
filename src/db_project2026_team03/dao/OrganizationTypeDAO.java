@@ -11,7 +11,8 @@ import db_project2026_team03.DBConnection;
 import db_project2026_team03.dto.OrganizationTypeDTO;
 
 public class OrganizationTypeDAO {
-
+	
+	//신규 동아리 유형 정보 추가
     public boolean insertOrganizationType(OrganizationTypeDTO type) {
         String sql = "INSERT INTO OrganizationType (type_name) VALUES (?)";
         boolean isSuccess = false;
@@ -29,7 +30,8 @@ public class OrganizationTypeDAO {
         }
         return isSuccess;
     }
-
+    
+  //전체 동아리 유형 목록 조회
     public List<OrganizationTypeDTO> selectAllOrganizationTypes() {
         String sql = "SELECT * FROM OrganizationType";
         List<OrganizationTypeDTO> list = new ArrayList<>();

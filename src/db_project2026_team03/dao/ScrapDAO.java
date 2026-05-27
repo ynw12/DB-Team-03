@@ -33,7 +33,7 @@ public class ScrapDAO {
                     selectStmt.setInt(1, scrap.getRecruitmentId());
                     try (ResultSet rs = selectStmt.executeQuery()) {
                         if (rs.next()) {
-                            System.out.println("\n 스크랩에 추가되었습니다.");
+                            System.out.println("\n✅ 스크랩에 추가되었습니다.");
                             System.out.println("▶ 공고명 : " + rs.getString("title"));
                         }
                     }
@@ -150,7 +150,7 @@ public class ScrapDAO {
                 System.out.println("\n✅ 스크랩이 삭제되었습니다.");
                 return true;
             } else {
-                System.out.println("\n⚠️  해당 스크랩 내역이 없습니다.");
+                System.out.println("\n 해당 스크랩 내역이 없습니다.");
                 return false;
             }
  

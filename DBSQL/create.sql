@@ -21,7 +21,7 @@ CREATE TABLE Category (
     category_name VARCHAR(50) NOT NULL -- 분야 이름 (예: 학술, 봉사, 공연, 체육 등)
 );
 
--- Organization의 운영진 담당 학생 정보 테이블
+-- Organization의 운영진 담당 포함 학생 정보 테이블
 CREATE TABLE Student (
     student_id  VARCHAR(20) PRIMARY KEY, -- 학생의 고유 학번
     name        VARCHAR(50) NOT NULL, -- 학생의 실명

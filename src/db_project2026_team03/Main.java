@@ -102,7 +102,7 @@ public class Main {
 
         while (isOrgRunning) {
             System.out.println("\n[동아리 정보 가이드] --------------------------------");
-            System.out.println("1. 전체 동아리 목록 다시보기   2. 분야 카테고리별 필터링");
+            System.out.println("1. 전체 동아리 목록 다시보기   2. 분야 카테고리별 인기순 필터링");
             System.out.println("3. 동아리 상세 정보 확인 및 북마크(즐겨찾기) 등록");
             System.out.println("0. 이전 메뉴로 돌아가기");
             System.out.println("-------------------------------------------------");

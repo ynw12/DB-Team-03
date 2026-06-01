@@ -104,15 +104,19 @@ public class OrganizationDAO {
         }
     }
 
-    // 동아리 카테고리별 필터링 기능
+    // 동아리 카테고리별 인기순 필터링 기능
     public void filterOrganizationsByCategory(String categoryName) {
-        String sql = "SELECT o.org_id, o.org_name, t.type_name " +
-                     "FROM Organization o " +
-                     "JOIN OrganizationType t ON o.org_type_id = t.org_type_id " +
-                     "JOIN Category c ON o.category_id = c.category_id " +
-                     "WHERE o.org_status = true AND c.category_name = ? " +
-                     "ORDER BY o.org_name";
-
+    	String sql = "SELECT o.org_id, o.org_name, t.type_name, " +
+                	 "       (SELECT COUNT(*) " +
+                	 "        FROM Application a " +
+                	 "        JOIN Recruitment r ON a.recruitment_id = r.recruitment_id " +
+                	 "        WHERE r.org_id = o.org_id) AS app_count " +
+                	 "FROM Organization o " +
+                	 "JOIN OrganizationType t ON o.org_type_id = t.org_type_id " +
+                	 "JOIN Category c ON o.category_id = c.category_id " +
+                	 "WHERE o.org_status = true AND c.category_name = ? " +
+                	 "ORDER BY app_count DESC, o.org_name ASC";
+        
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -120,7 +124,7 @@ public class OrganizationDAO {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 System.out.println("\n===== '" + categoryName + "' 카테고리 단체 목록 =====");
-                System.out.println("ID | 소속 유형 | 단체명");
+                System.out.println("ID | 소속 유형 | 단체명 | 지원자 수");
                 System.out.println("-----------------------------------------");
 
                 boolean hasResult = false;
@@ -129,8 +133,9 @@ public class OrganizationDAO {
                     int id = rs.getInt("org_id");
                     String type = rs.getString("type_name");
                     String name = rs.getString("org_name");
-
-                    System.out.printf("%d | %s | %s\n", id, type, name);
+                    int appCount = rs.getInt("app_count");
+                    
+                    System.out.printf("%d | %s | %s | %d명\n", id, type, name, appCount);
                 }
 
                 if (!hasResult) {
@@ -182,7 +187,7 @@ public class OrganizationDAO {
             System.out.println("xx 동아리 상세 조회 실패: " + e.getMessage());
         }
     }
-    
+
     // 학생의 운영진 여부 확인
     public boolean checkIsAdmin(String studentId) {
         String sql = "SELECT 1 FROM Organization WHERE president_id = ? LIMIT 1";

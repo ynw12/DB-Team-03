@@ -385,8 +385,9 @@ INSERT INTO Application (application_id, recruitment_id, student_id, self_intro,
     (27, 21, '2661031', '동아리 활동에 성실히 참여하고 관련 분야를 배우고 싶습니다.', '불합격'),
     (28, 22, '2661032', '동아리 활동에 성실히 참여하고 관련 분야를 배우고 싶습니다.', '대기'),
     (29, 23, '2661033', '동아리 활동에 성실히 참여하고 관련 분야를 배우고 싶습니다.', '합격'),
-    (30, 24, '2661034', '동아리 활동에 성실히 참여하고 관련 분야를 배우고 싶습니다.', '불합격');
-	
+    (30, 24, '2661034', '동아리 활동에 성실히 참여하고 관련 분야를 배우고 싶습니다.', '불합격'),
+	(31, 1, '2661035', '동아리 활동에 성실히 참여하고 관련 분야를 배우고 싶습니다.', '대기');
+    
 ALTER TABLE Application AUTO_INCREMENT = 34;   
 
 INSERT INTO Bookmark (bookmark_id, org_id, student_id, created_at) VALUES

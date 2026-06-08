@@ -1,0 +1,342 @@
+package db_project2026_team03.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import db_project2026_team03.DBConnection;
+import db_project2026_team03.dto.OrganizationDTO;
+
+public class OrganizationDAO {
+	
+	//신규 동아리 정보 데이터베이스 추가
+    public boolean insertOrganization(OrganizationDTO org) {
+        String sql = "INSERT INTO Organization (org_name, org_type_id, category_id, description, short_description, president_id, org_status) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        boolean isSuccess = false;
+
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, org.getOrgName());
+            pstmt.setInt(2, org.getOrgTypeId());
+            pstmt.setInt(3, org.getCategoryId());
+            pstmt.setString(4, org.getDescription());
+            pstmt.setString(5, org.getShortDescription());
+            pstmt.setString(6, org.getPresidentId());
+            pstmt.setBoolean(7, org.isOrgStatus());
+
+            int rowsAffected = pstmt.executeUpdate();
+            if (rowsAffected > 0)
+                isSuccess = true;
+
+        } catch (SQLException e) {
+            System.out.println("xx Organization 등록 실패: " + e.getMessage());
+        }
+        return isSuccess;
+    }
+
+    //전체 동아리 목록 데이터 조회
+    public List<OrganizationDTO> selectAllOrganizations() {
+        String sql = "SELECT * FROM Organization";
+        List<OrganizationDTO> list = new ArrayList<>();
+
+        try (Connection conn = DBConnection.getConnection();
+                PreparedStatement pstmt = conn.prepareStatement(sql);
+                ResultSet rs = pstmt.executeQuery()) {
+
+            while (rs.next()) {
+                OrganizationDTO dto = new OrganizationDTO();
+                dto.setOrgId(rs.getInt("org_id"));
+                dto.setOrgName(rs.getString("org_name"));
+                dto.setOrgTypeId(rs.getInt("org_type_id"));
+                dto.setCategoryId(rs.getInt("category_id"));
+                dto.setDescription(rs.getString("description"));
+                dto.setShortDescription(rs.getString("short_description"));
+                dto.setPresidentId(rs.getString("president_id"));
+                dto.setOrgStatus(rs.getBoolean("org_status"));
+                list.add(dto);
+            }
+
+        } catch (SQLException e) {
+            System.out.println("xx Organization 조회 실패: " + e.getMessage());
+        }
+        return list;
+    }
+
+    //전체 동아리 목록을 화면에 출력
+    public void printAllOrganizations() {
+        String sql = "SELECT o.org_id, o.org_name, t.type_name, c.category_name " +
+                     "FROM Organization o " +
+                     "JOIN OrganizationType t ON o.org_type_id = t.org_type_id " +
+                     "JOIN Category c ON o.category_id = c.category_id " +
+                     "WHERE o.org_status = true " +
+                     "ORDER BY o.org_name";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql);
+             ResultSet rs = pstmt.executeQuery()) {
+
+            System.out.println("\n===== 전체 동아리/학회 목록 =====");
+            System.out.println("ID | 카테고리 | 소속 유형 | 단체명");
+            System.out.println("-----------------------------------------");
+
+            boolean hasData = false;
+            while (rs.next()) {
+                hasData = true;
+                int id = rs.getInt("org_id");
+                String category = rs.getString("category_name");
+                String type = rs.getString("type_name");
+                String name = rs.getString("org_name");
+
+                System.out.printf("%d | %s | %s | %s\n", id, category, type, name);
+            }
+
+            if (!hasData) {
+                System.out.println("현재 활동 중인 단체가 없습니다.");
+            }
+            System.out.println("=========================================\n");
+
+        } catch (SQLException e) {
+            System.out.println("xx 동아리 목록 조회 실패: " + e.getMessage());
+        }
+    }
+
+    // 동아리 카테고리별 인기순 필터링 기능
+    public void filterOrganizationsByCategory(String categoryName) {
+    	String sql = "SELECT o.org_id, o.org_name, t.type_name, " +
+                	 "       (SELECT COUNT(*) " +
+                	 "        FROM Application a " +
+                	 "        JOIN Recruitment r ON a.recruitment_id = r.recruitment_id " +
+                	 "        WHERE r.org_id = o.org_id) AS app_count " +
+                	 "FROM Organization o " +
+                	 "JOIN OrganizationType t ON o.org_type_id = t.org_type_id " +
+                	 "JOIN Category c ON o.category_id = c.category_id " +
+                	 "WHERE o.org_status = true AND c.category_name = ? " +
+                	 "ORDER BY app_count DESC, o.org_name ASC";
+        
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, categoryName);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                System.out.println("\n===== '" + categoryName + "' 카테고리 단체 목록 =====");
+                System.out.println("ID | 소속 유형 | 단체명 | 지원자 수");
+                System.out.println("-----------------------------------------");
+
+                boolean hasResult = false;
+                while (rs.next()) {
+                    hasResult = true;
+                    int id = rs.getInt("org_id");
+                    String type = rs.getString("type_name");
+                    String name = rs.getString("org_name");
+                    int appCount = rs.getInt("app_count");
+                    
+                    System.out.printf("%d | %s | %s | %d명\n", id, type, name, appCount);
+                }
+
+                if (!hasResult) {
+                    System.out.println("해당 카테고리에 활동 중인 단체가 없습니다.");
+                }
+                System.out.println("=========================================\n");
+            }
+        } catch (SQLException e) {
+            System.out.println("xx 카테고리 필터링 실패: " + e.getMessage());
+        }
+    }
+
+    // 특정 동아리 상세 조회
+    public void printOrganizationDetail(int orgId) {
+        String sql = "SELECT o.org_name, t.type_name, c.category_name, o.description, s.name as president_name " +
+                     "FROM Organization o " +
+                     "JOIN OrganizationType t ON o.org_type_id = t.org_type_id " +
+                     "JOIN Category c ON o.category_id = c.category_id " +
+                     "JOIN Student s ON o.president_id = s.student_id " + 
+                     "WHERE o.org_id = ? AND o.org_status = true";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, orgId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    String name = rs.getString("org_name");
+                    String type = rs.getString("type_name");
+                    String category = rs.getString("category_name");
+                    String description = rs.getString("description");
+                    String presidentName = rs.getString("president_name");
+
+                    System.out.println("\n============================================");
+                    System.out.println("  " + name + " 상세 정보");
+                    System.out.println("============================================");
+                    System.out.println("▶ 소속 유형 : " + type);
+                    System.out.println("▶ 활동 분야 : " + category);
+                    System.out.println("▶ 운영진(대표) : " + presidentName);
+                    System.out.println("--------------------------------------------");
+                    System.out.println("▶ 단체 소개 :\n" + description);
+                    System.out.println("============================================");
+                } else {
+                    System.out.println("해당 번호의 단체를 찾을 수 없습니다.");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("xx 동아리 상세 조회 실패: " + e.getMessage());
+        }
+    }
+
+    // 학생의 운영진 여부 확인
+    public boolean checkIsAdmin(String studentId) {
+        String sql = "SELECT 1 FROM Organization WHERE president_id = ? LIMIT 1";
+        
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setString(1, studentId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                return rs.next(); //일치하는 운영진 데이터가 있으면 true,없으면 false
+            }
+        } catch (SQLException e) {
+            System.out.println("xx 운영진 권한 확인 실패: " + e.getMessage());
+        }
+        return false;
+    }
+
+    // 운영진 학생 학번(president_id)으로 동아리 org_id 조회
+    public int getOrgIdByPresidentId(String presidentId) {
+        String sql = "SELECT org_id FROM Organization "
+                   + "WHERE president_id = ? AND org_status = TRUE";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, presidentId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("org_id");
+                }
+            }
+
+        } catch (SQLException e) {
+            System.out.println("xx 운영진 org_id 조회 실패: " + e.getMessage());
+        }
+
+        return -1; // 해당 학생이 운영진이 아닌 경우
+    }
+    
+    //로그인한 학번(운영진)이 관리하는 동아리 목록을 출력하고, 해당 동아리 번호 리스트를 반환
+    public List<Integer> getManagedActiveOrganizations(String loginedStudentId) {
+        List<Integer> managedOrgIds = new ArrayList<>();
+
+        String sql = "SELECT org_id, org_name FROM Organization WHERE president_id = ? AND org_status = true";
+        
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+             
+            pstmt.setString(1, loginedStudentId);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                System.out.println("\n[ 관리 중인 동아리/학회 목록 ]");
+                boolean hasData = false;
+                
+                while (rs.next()) {
+                    hasData = true;
+                    int orgId = rs.getInt("org_id");
+                    String orgName = rs.getString("org_name");
+                    
+                    managedOrgIds.add(orgId); // 리스트에 동아리 번호 추가
+                    System.out.println("- 단체 번호 [" + orgId + "] : " + orgName);
+                }
+                
+                if (!hasData) {
+                    System.out.println("현재 관리 중인 활성 동아리/학회가 없습니다.");
+                }
+            }
+            
+        } catch (SQLException e) {
+            System.out.println("xx 목록 조회 실패: " + e.getMessage());
+        }
+        
+        return managedOrgIds;
+    }
+    
+    // [트랜잭션] 동아리 비활성화 - 북마크 삭제
+    public boolean deactivateOrganization(int orgId, String loginedStudentId) {
+        String checkManagerSql = "SELECT president_id FROM Organization WHERE org_id = ?";
+        String deactivateSql = "UPDATE Organization SET org_status = false WHERE org_id = ?";
+        String deleteBookmarkSql = "DELETE FROM Bookmark WHERE org_id = ?";
+        
+        Connection conn = null; 
+
+        try {
+            conn = DBConnection.getConnection();
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement pstmt = conn.prepareStatement(checkManagerSql)) {
+                pstmt.setInt(1, orgId);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        String managerId = rs.getString("president_id");
+                        // 로그인한 학번과 동아리 관리자 학번 비교
+                        if (!loginedStudentId.equals(managerId)) {
+                            System.out.println("xx 권한이 없습니다. 본인이 운영진인 동아리만 처리가 가능합니다.");
+                            conn.rollback();
+                            return false;
+                        }
+                    } else {
+                        // 여기서 존재하지 않는 동아리를 완벽히 걸러냅니다.
+                        System.out.println("xx 존재하지 않는 동아리입니다.");
+                        conn.rollback();
+                        return false;
+                    }
+                }
+            }
+
+            try (PreparedStatement pstmt = conn.prepareStatement(deactivateSql)) {
+                pstmt.setInt(1, orgId);
+                // 0번에서 존재 여부 검증을 마쳤으므로 예외 조건문 없이 바로 실행합니다.
+                pstmt.executeUpdate();
+            }
+			
+            try (PreparedStatement pstmt = conn.prepareStatement(deleteBookmarkSql)) {
+                pstmt.setInt(1, orgId);
+                int deleted = pstmt.executeUpdate();
+                // 북마크 n건 삭제 출력 (삭제 개수 출력)
+                System.out.println("\n==========================");
+                System.out.println("북마크 " + deleted + "건 삭제");
+            }
+
+            conn.commit();
+            System.out.println("동아리 비활성화 완료 | org_id: " + orgId);
+            return true;
+
+        } 
+        catch (SQLException e) {
+            System.out.println("xx 처리 실패, 롤백 진행: " + e.getMessage());
+            
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    System.out.println("xx 롤백 중 추가 에러 발생: " + ex.getMessage());
+                }
+            }
+            return false;
+            
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                } catch (SQLException e) {
+                    System.out.println("xx 커넥션 닫기 실패: " + e.getMessage());
+                }
+            }
+        }
+    }
+}
+
